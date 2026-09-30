@@ -75,10 +75,7 @@ Rails.application.configure do
     address: ENV.fetch("SMTP_ADDRESS", "smtp.gmail.com"),
     port: ENV.fetch("SMTP_PORT", 587).to_i,
     domain: ENV.fetch("SMTP_DOMAIN"),
-    user_name: ENV.fetch("SMTP_USERNAME"),
-    password: ENV.fetch("SMTP_PASSWORD"),
-    authentication: :plain,
-    enable_starttls: true,
+    enable_starttls_auto: true,
     open_timeout: 5,
     read_timeout: 5
   }
