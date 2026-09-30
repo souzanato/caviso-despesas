@@ -1,0 +1,41 @@
+# Nomes de models e atributos do domínio financeiro, para que as mensagens de
+# validação saiam em português em vez de "Amount can't be blank".
+pt-BR:
+  activerecord:
+    models:
+      category: Categoria
+      expense: Despesa
+      ledger: Rubrica
+      ledger_item:
+        one: Item de rubrica
+        other: Itens de rubrica
+
+    attributes:
+      category:
+        name: Nome
+        user: Usuário
+
+      expense:
+        name: Nome
+        amount: Valor
+        category: Categoria
+        user: Usuário
+
+      ledger:
+        name: Nome
+        user: Usuário
+
+      ledger_item:
+        name_snapshot: Nome
+        category_name_snapshot: Categoria
+        amount: Valor
+        paid: Pago
+
+    errors:
+      models:
+        expense:
+          attributes:
+            category:
+              # Despesa e categoria são ambos escopados por usuário; apontar uma
+              # despesa para a categoria de outra conta precisa ser recusado.
+              different_user: precisa pertencer ao mesmo usuário da despesa

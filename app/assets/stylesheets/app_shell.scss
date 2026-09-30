@@ -1,0 +1,653 @@
+// =============================================================================
+// Shell da aplicação — topbar, sidebar, conteúdo e rodapé
+// =============================================================================
+// Entra pelo bundle principal (application.css), porque vale para todas as
+// páginas logadas. As telas de autenticação usam layout próprio e não passam
+// por aqui (ver app/views/layouts/devise.html.erb).
+//
+// Mobile-first: a estrutura de grid de 4 áreas só ganha a coluna da sidebar a
+// partir de lg (992px). Abaixo disso a sidebar vira um drawer do Bootstrap
+// (`.offcanvas-lg`), que já traz backdrop, foco, Escape e trava de scroll.
+//
+// Tokens: nenhuma cor, espaçamento, raio, sombra ou movimento é declarado aqui.
+// Tudo vem de `design_system/tokens` (fundamentos compartilhados) e de
+// `design_system/theme_app` (superfícies, texto, bordas e elevação do tema
+// light, que é o padrão desta área). Este arquivo só define a *geometria do
+// shell* (alturas, larguras e camadas), específica do componente.
+//
+// A base (fundo e cor de texto do <body>) NÃO é definida aqui: cada contexto
+// declara a sua em seu próprio tema, para que autenticação e área autenticada
+// não dependam uma da outra.
+//
+// Onde o Bootstrap define fundo/cor via propriedade, sobrescrevemos a *variável*
+// dele (--bs-*) em vez da propriedade: evita disputa de especificidade e
+// `!important`.
+// =============================================================================
+
+:root {
+  // --- Geometria do shell ----------------------------------------------------
+  --app-topbar-h: 52px;
+  --app-footer-h: 61px; // altura real: 44px de tap-target + 2×8px de padding + 1px de borda
+  --app-sidebar-w: 264px;
+  --app-sidebar-w-collapsed: 68px;
+
+  // --- Camadas (o drawer do Bootstrap usa 1045) ------------------------------
+  --app-z-footer: 1020;
+  --app-z-topbar: 1030;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// -----------------------------------------------------------------------------
+// Estrutura: 4 áreas, uma coluna no mobile
+// -----------------------------------------------------------------------------
+.app {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "topbar"
+    "main"
+    "footer";
+}
+
+@media (min-width: 992px) {
+  .app {
+    grid-template-columns: var(--app-sidebar-w) minmax(0, 1fr);
+    grid-template-areas:
+      "topbar  topbar"
+      "sidebar main"
+      "footer  footer";
+  }
+
+  // Sidebar retraída: só a largura muda. Todo o resto do layout acompanha
+  // porque a coluna do grid é derivada desta variável.
+  .app.is-sidebar-collapsed {
+    --app-sidebar-w: var(--app-sidebar-w-collapsed);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Topbar
+// -----------------------------------------------------------------------------
+.app-topbar {
+  grid-area: topbar;
+  position: sticky;
+  top: 0;
+  z-index: var(--app-z-topbar);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--app-topbar-h);
+  padding-inline: var(--space-4);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-topbar__start,
+.app-topbar__end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.app-brand__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-on-primary);
+  font-size: 1rem;
+}
+
+.app-brand__name {
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// -----------------------------------------------------------------------------
+// Botão de ícone — controle de navegação da topbar
+// -----------------------------------------------------------------------------
+.app-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+.app-icon-btn:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.app-icon-btn:focus-visible,
+.app-avatar:focus-visible,
+.app-gadget:focus-visible,
+.app-nav__link:focus-visible,
+.app-nav__sublink:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// Menu do usuário (avatar + dropdown do Bootstrap)
+// -----------------------------------------------------------------------------
+.app-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-on-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+// Sobrescreve as variáveis do .dropdown-menu, não as propriedades.
+.app-user__menu {
+  --bs-dropdown-bg: var(--color-surface);
+  --bs-dropdown-border-color: var(--color-border);
+  --bs-dropdown-border-radius: var(--radius-md);
+  --bs-dropdown-link-color: var(--color-text);
+  --bs-dropdown-link-hover-bg: var(--color-surface-hover);
+  --bs-dropdown-link-hover-color: var(--color-text);
+  --bs-dropdown-link-active-bg: var(--color-primary);
+  --bs-dropdown-link-active-color: var(--color-on-primary);
+  --bs-dropdown-min-width: 12rem;
+  --bs-dropdown-padding-y: var(--space-2);
+  box-shadow: var(--elevation-2);
+}
+
+.app-user__menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-target);
+  font-size: 0.875rem;
+}
+
+.app-user__menu form {
+  margin: 0;
+}
+
+// -----------------------------------------------------------------------------
+// Sidebar
+// -----------------------------------------------------------------------------
+// Abaixo de lg é o drawer do Bootstrap: `--bs-offcanvas-*` controla o visual.
+.app-sidebar {
+  --bs-offcanvas-bg: var(--color-surface);
+  --bs-offcanvas-color: var(--color-text);
+  --bs-offcanvas-width: min(280px, 82vw);
+  --bs-offcanvas-border-width: 0;
+}
+
+.app-sidebar__header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-sidebar__title {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--color-text);
+}
+
+@media (min-width: 992px) {
+
+  // Acima de lg o Bootstrap neutraliza o offcanvas (fundo transparente,
+  // position static). Aqui ela passa a ser a coluna do grid.
+  //
+  // O aside estica para preencher a altura da linha — assim a borda direita
+  // acompanha a coluna inteira, e não só a altura do menu. Quem "gruda" no
+  // topo é o conteúdo interno, que é mais curto que a página.
+  .app-sidebar {
+    grid-area: sidebar;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .app-sidebar>.offcanvas-body {
+    // O Bootstrap deixa este elemento como `display: flex` a partir de lg, o
+    // que faria o .app-nav virar item flex e encolher para a largura do
+    // conteúdo (a sidebar recolhida ficava com os ícones fora de centro).
+    display: block;
+    position: sticky;
+    top: var(--app-topbar-h);
+    // Nunca invade a topbar nem o rodapé.
+    max-height: calc(100dvh - var(--app-topbar-h) - var(--app-footer-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Navegação (até 2 níveis)
+// -----------------------------------------------------------------------------
+.app-nav {
+  padding: var(--space-2);
+}
+
+.app-nav__list,
+.app-nav__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-nav__group {
+  padding-left: var(--space-8); // alinha o submenu sob o texto do item pai
+}
+
+.app-nav__link,
+.app-nav__sublink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-target);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+.app-nav__sublink {
+  font-size: 0.875rem;
+}
+
+.app-nav__link:hover,
+.app-nav__sublink:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+// Item ativo: verde da marca sobre tinta suave. `--color-primary-text` (e não
+// `--color-primary`) porque aqui o verde é TEXTO — a cor de preenchimento não
+// atinge 4,5:1 sobre superfície clara.
+//
+// Vem depois do :hover para que o item ativo não perca a identidade ao passar
+// o mouse. O peso da fonte é a segunda pista: o §6 exige que o item ativo seja
+// distinguível por mais do que cor.
+.app-nav__link.is-active,
+.app-nav__sublink.is-active {
+  background-color: var(--color-primary-bg);
+  color: var(--color-primary-text);
+  font-weight: 600;
+}
+
+// <summary> como item de menu: sem o marcador nativo, mas mantendo o
+// disclosure acessível que o navegador já expõe para details/summary.
+.app-nav__link--parent {
+  cursor: pointer;
+  list-style: none;
+}
+
+.app-nav__link--parent::-webkit-details-marker {
+  display: none;
+}
+
+.app-nav__icon {
+  flex: 0 0 auto;
+  width: 20px;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+.app-nav__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-nav__chevron {
+  flex: 0 0 auto;
+  font-size: 0.6875rem;
+  transition: transform var(--transition-base);
+}
+
+.app-nav__details[open]>.app-nav__link--parent .app-nav__chevron {
+  transform: rotate(180deg);
+}
+
+// Itens cujo destino ainda não existe (rota não implementada).
+.app-nav__link--pending,
+.app-nav__sublink--pending {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.app-nav__link--pending:hover,
+.app-nav__sublink--pending:hover {
+  background-color: transparent;
+  color: var(--color-text-muted);
+}
+
+// Sidebar retraída (só desktop): apenas ícones. Os submenus somem por completo
+// — clicar no item pai reexpande a sidebar, então a navegação continua possível.
+@media (min-width: 992px) {
+  .app.is-sidebar-collapsed {
+    .app-nav {
+      padding-inline: var(--space-2);
+    }
+
+    .app-nav__chevron,
+    .app-nav__group {
+      display: none;
+    }
+
+    // O rótulo NÃO usa `display: none`: isso o removeria da árvore de
+    // acessibilidade e o item viraria um ícone sem nome — o §6 exige que o
+    // rótulo continue disponível para leitores de tela no estado retraído.
+    // Estas são as propriedades do padrão "visualmente oculto": some da tela,
+    // permanece para quem lê a página. Como encolhida é o estado PADRÃO, isso
+    // vale para a maioria das visitas.
+    .app-nav__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .app-nav__link {
+      justify-content: center;
+      padding-inline: var(--space-2);
+    }
+
+    .app-nav__icon {
+      width: auto;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Conteúdo
+// -----------------------------------------------------------------------------
+.app-main {
+  grid-area: main;
+  min-width: 0; // permite tabelas/conteúdo largo sem estourar o grid
+  // Sem padding no TOPO: ele é substituído pela faixa sticky abaixo. É o que
+  // permite um bloco preso dentro do <main> prender rente à topbar — com
+  // padding, o topo da caixa de conteúdo fica abaixo dela e o `sticky` não
+  // sobe além disso.
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+// Faixa que faz o papel do padding do topo, mas prende sob a topbar.
+//
+// Precisa ser filha do <main> e vir ANTES de tudo: assim ela cobre a região
+// por onde as linhas passariam ao rolar, e nunca alcança o flash — que começa
+// depois dela. Um `::before` no próprio bloco preso não serve: ele cobriria
+// uma altura fixa ACIMA do bloco, invadindo o que estiver lá (era o que
+// encostava no alerta).
+.app-main::before {
+  content: "";
+  position: sticky;
+  inset-block-start: var(--app-topbar-h);
+  z-index: 9; // abaixo do bloco preso (10) e acima das linhas
+  display: block;
+  block-size: var(--space-4);
+  background-color: var(--color-bg);
+}
+
+@media (min-width: 992px) {
+  .app-main::before {
+    block-size: var(--space-6);
+  }
+}
+
+// O flash fica acima do conteúdo e só ocupa espaço quando existe mensagem.
+// O seletor é filho direto porque um [error-message] DENTRO de um formulário
+// também é .ds-alert, e esse não deve ganhar margem extra.
+.app-main>.ds-alert {
+  margin-bottom: var(--space-4);
+}
+
+@media (min-width: 992px) {
+  .app-main {
+    padding: var(--space-6);
+    // [app-shell] §6 (desktop): conteúdo centralizado com largura máxima.
+    //
+    // `justify-self: center` + `width: 100%`, e NÃO `margin-inline: auto`:
+    // margens automáticas num item de grid cancelam o alinhamento padrão
+    // (stretch), e o item passa a dimensionar pelo conteúdo — o que encolhia a
+    // área de conteúdo para a largura do filho mais largo e a centralizava.
+    // Com `width: 100%` ela preenche a área até o limite de 1280px.
+    width: 100%;
+    max-width: 1280px;
+    justify-self: center;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Rodapé
+// -----------------------------------------------------------------------------
+.app-footer {
+  grid-area: footer;
+  position: sticky;
+  bottom: 0;
+  z-index: var(--app-z-footer);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  min-height: var(--app-footer-h);
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.app-footer__date {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.app-footer__gadgets {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.app-gadget {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  // Alvo de toque mínimo do projeto (Rule 11). O rodapé cresce junto, porque
+  // --app-footer-h é só a altura mínima.
+  min-height: var(--tap-target);
+  min-inline-size: var(--tap-target);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base);
+}
+
+.app-gadget:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+// Gadget ainda sem comportamento (ver COMPONENT-REGISTRY, [footer]). O §6 diz
+// que gadget sem comportamento não deve parecer funcional: a borda tracejada e
+// o cursor padrão sinalizam "ainda não" antes de qualquer clique. Quando o
+// comportamento existir, basta remover a classe no parcial.
+// A classe vem duplicada de propósito: o Bootstrap define
+// `button:not(:disabled) { cursor: pointer }`, que tem especificidade (0,1,1) e
+// venceria um seletor de classe única (0,1,0). `.app-gadget.app-gadget--pending`
+// sobe para (0,2,0) e passa a valer.
+// A borda tracejada saiu: o produto pediu borda sólida, e um controle com
+// borda tracejada lia como desabilitado. O aviso de "sem comportamento"
+// continua no nome acessível ("… — disponível em breve"), que é onde ele
+// alcança quem realmente precisa saber — e sem parecer um botão quebrado.
+.app-gadget.app-gadget--pending {
+  cursor: default;
+}
+
+.app-gadget--pending:hover {
+  background-color: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+// Em telas estreitas o rótulo sai e sobra só o ícone — o aria-label do botão
+// continua anunciando o nome para leitores de tela.
+@media (max-width: 575.98px) {
+  .app-gadget__label {
+    display: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+
+  .app-icon-btn,
+  .app-avatar,
+  .app-gadget,
+  .app-nav__link,
+  .app-nav__sublink,
+  .app-nav__chevron {
+    transition: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Rodapé no celular
+// -----------------------------------------------------------------------------
+// Bloco próprio, e NÃO uma `@media` aninhada dentro da regra: aninhada, ela era
+// emitida antes e o `padding` da própria `.app-footer` vencia — o rodapé ficava
+// com 8px em vez dos 80 que deviam reservar a barra de ação.
+//
+// A reserva é do RODAPÉ, não do conteúdo. Ela estava no `.ds-home__detail`, que
+// fica acima dele: sobrava um vão de 80px no meio da tela E o rodapé continuava
+// embaixo da barra fixa.
+@media (max-width: 991.98px) {
+  .app-footer {
+    position: static;
+    margin-block-start: var(--space-4);
+    padding-block-end: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ds-home__detail {
+    padding-block-end: 0;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// Desktop: a altura do shell vem da CADEIA de alturas, não de contas com `vh`
+// -----------------------------------------------------------------------------
+// html(100%) > body(100%) > .app(100%) > linha `1fr` > .app-main > .ds-home.
+// Assim o rodapé é sempre a última linha e termina exatamente na base da
+// janela, sem depender de `dvh`/`vh` nem de o token do rodapé bater com a
+// altura real. Este bloco vem por último de propósito: substitui os
+// `calc(100dvh - …)` empilhados em _components.scss.
+@media (min-width: 992px) {
+
+  // `fixed` + `inset: 0`: o shell ocupa a janela por definição, sem depender
+  // da altura de html/body. Quem rola é a lista, dentro do main.
+  .app {
+    position: fixed;
+    inset: 0;
+    height: auto;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .app>.app-main {
+    min-block-size: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app>.app-main>.ds-home {
+    flex: 1 1 auto;
+    block-size: auto;
+    min-block-size: 0;
+  }
+
+  .app-footer {
+    position: static;
+  }
+
+  .ds-home .ds-picker__panel {
+    position: static;
+    block-size: 100%;
+    max-block-size: none;
+  }
+
+  .app-sidebar>.offcanvas-body {
+    max-height: none;
+    block-size: 100%;
+  }
+}

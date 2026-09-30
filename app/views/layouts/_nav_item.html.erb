@@ -1,0 +1,58 @@
+<%# locals: (item:) %>
+<%#
+  Um item de primeiro nível do menu, com ou sem submenu (máximo 2 níveis).
+  Itens sem destino definido (rota ainda não implementada) saem como texto
+  inerte — nunca como link quebrado. Ver app/helpers/navigation_helper.rb.
+%>
+<% path = navigation_path(item) %>
+<% icon = tag.i(class: "bi #{item[:icon]} app-nav__icon", aria: { hidden: true }) %>
+
+<li class="app-nav__item">
+  <% if item[:children].present? %>
+    <%#
+      <details>/<summary> em vez de JavaScript: o navegador já expõe o estado
+      expandido/retraído para leitores de tela e o teclado funciona nativamente.
+      O clique também reexpande a sidebar, já que no estado retraído o submenu
+      fica oculto.
+    %>
+    <%#
+      `open` quando algum filho é a página atual: sem isso o usuário cai em
+      /categories e a sidebar não mostra onde ele está — o item ativo existe no
+      HTML, mas fica escondido dentro de um <details> fechado.
+    %>
+    <details class="app-nav__details"
+             <%= "open" if item[:children].any? { |child| navigation_active?(child) } %>>
+      <summary class="app-nav__link app-nav__link--parent"
+               data-action="click->sidebar#expand">
+        <%= icon %>
+        <span class="app-nav__label"><%= t(item[:label]) %></span>
+        <%= tag.i(class: "bi bi-chevron-down app-nav__chevron", aria: { hidden: true }) %>
+      </summary>
+
+      <ul class="app-nav__group">
+        <% item[:children].each do |child| %>
+          <% child_path = navigation_path(child) %>
+          <li>
+            <% if child_path %>
+              <%= link_to t(child[:label]), child_path,
+                          class: class_names("app-nav__sublink", "is-active": current_page?(child_path)) %>
+            <% else %>
+              <span class="app-nav__sublink app-nav__sublink--pending"
+                    title="<%= t("app.nav.pending") %>"><%= t(child[:label]) %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </details>
+  <% elsif path %>
+    <%= link_to path, class: class_names("app-nav__link", "is-active": navigation_active?(item)) do %>
+      <%= icon %>
+      <span class="app-nav__label"><%= t(item[:label]) %></span>
+    <% end %>
+  <% else %>
+    <span class="app-nav__link app-nav__link--pending" title="<%= t("app.nav.pending") %>">
+      <%= icon %>
+      <span class="app-nav__label"><%= t(item[:label]) %></span>
+    </span>
+  <% end %>
+</li>

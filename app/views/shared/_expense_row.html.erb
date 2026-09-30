@@ -1,0 +1,98 @@
+<%# locals: (item:, sortable: false) %>
+<%#
+  [expense-row] §7 — uma despesa dentro de uma rubrica.
+
+  O nome e a categoria vêm dos SNAPSHOTS do item, não do cadastro da despesa:
+  editar a despesa depois não reescreve esta rubrica.
+
+  A estrutura é plana (cinco irmãos) porque o layout muda por largura: no
+  celular são duas faixas, no desktop uma só. Ver o CSS das grid-areas.
+%>
+<li class="ds-expense-row <%= "is-paid" if item.paid %>"
+    id="<%= dom_id(item) %>"
+    data-drag-item="<%= item.id %>">
+  <%#
+    A alça é o ÚNICO ponto de arrasto. O corpo da linha abre a edição e o
+    checkbox marca pago — arrastar a linha inteira tornaria impossível acertar
+    o toque no meio dela.
+
+    É um <button> porque precisa receber foco: arrastar não é alcançável por
+    teclado, e as setas ↑/↓ na alça mantêm a função disponível para quem não
+    usa mouse. Ver §7, "Ordenação por teclado".
+  %>
+  <% if sortable %>
+    <button type="button"
+            class="ds-expense-row__grip"
+            data-drag-handle
+            data-action="keydown->drag#move"
+            aria-label="<%= t("home.row.reorder", name: item.name_snapshot) %>">
+      <i class="bi bi-grip-vertical" aria-hidden="true"></i>
+    </button>
+  <% else %>
+    <%# Numa ordem calculada não há alça: a coluna fica vazia para as linhas
+        continuarem alinhadas entre os modos. %>
+    <span class="ds-expense-row__grip-placeholder" aria-hidden="true"></span>
+  <% end %>
+
+  <%#
+    Marcar pago é a ação mais frequente da tela, então não passa por botão de
+    salvar: o checkbox envia sozinho ao mudar, e a resposta Turbo substitui esta
+    linha e o resumo.
+  %>
+  <%= form_with model: item, url: ledger_item_path(item), method: :patch,
+                class: "ds-expense-row__check",
+                data: { controller: "auto-submit" } do |f| %>
+    <%# O rótulo diz QUAL despesa, para quem navega por leitor de tela. %>
+    <%# `id` explícito: o gerado pelo Rails seria `ledger_item_paid` em TODAS as
+        linhas — ids repetidos na página, e sem um id único não dá para devolver
+        o foco a este checkbox depois que o Turbo substitui a linha. %>
+    <%= f.check_box :paid,
+                    id: "paid_#{item.id}",
+                    class: "ds-expense-row__checkbox",
+                    "data-action": "change->auto-submit#submit",
+                    "aria-label": t("home.row.mark_paid", name: item.name_snapshot) %>
+  <% end %>
+
+  <%# O corpo da linha abre a edição — não é preciso acertar um ícone. %>
+  <button type="button"
+          class="ds-expense-row__name"
+          data-action="click->modal#open"
+          data-modal-id-param="<%= dom_id(item, :edit_modal) %>">
+    <%= item.name_snapshot %>
+  </button>
+
+  <span class="ds-expense-row__meta">
+    <%# O nome vai num elemento próprio para poder truncar: categorias longas
+        ("Armazenamento na Nuvem") são maiores que a coluna, e sem truncar elas
+        invadem a coluna do valor. %>
+    <span class="ds-category-badge ds-category-badge--<%= item.category_tone %>">
+      <span class="ds-category-badge__dot" aria-hidden="true"></span>
+      <span class="ds-category-badge__label"><%= item.category_name_snapshot %></span>
+    </span>
+  </span>
+
+  <span class="ds-expense-row__amount"><%= number_to_currency(item.amount) %></span>
+
+  <%#
+    Remove a despesa DESTA rubrica. Não apaga a despesa do cadastro — as outras
+    rubricas seguem intactas, e é por isso que a ação é reversível e não pede
+    confirmação: o Desfazer no [snackbar] é a rede.
+  %>
+  <%= button_to ledger_item_path(item),
+                method: :delete,
+                class: "app-icon-btn ds-expense-row__remove",
+                form: { class: "ds-inline-form" },
+                "aria-label": t("home.row.remove_label", name: item.name_snapshot) do %>
+    <i class="bi bi-x-lg" aria-hidden="true"></i>
+  <% end %>
+
+  <%# Um diálogo por linha. Custa DOM, mas evita carregar o formulário por
+      requisição a cada clique — e a lista de uma rubrica é de dezenas, não de
+      milhares. %>
+  <dialog class="ds-modal"
+          id="<%= dom_id(item, :edit_modal) %>"
+          data-action="click->modal#backdrop"
+          aria-label="<%= t("expenses.edit.title") %>">
+    <%= render "ledger_items/form", ledger: item.ledger, ledger_item: item %>
+  </dialog>
+</li>

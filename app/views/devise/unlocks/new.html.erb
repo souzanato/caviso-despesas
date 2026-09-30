@@ -1,0 +1,21 @@
+<%# Título/card/flash vêm do layout dedicado. Aqui fica só o formulário. %>
+
+<%= form_for(resource, as: resource_name, url: unlock_path(resource_name),
+             html: { method: :post, class: "ds-form" }) do |f| %>
+  <%= render "shared/error_messages", resource: resource, title_key: "auth.errors.title" %>
+
+  <div class="ds-field">
+    <%= f.label :email, class: "ds-field__label" %>
+    <%= f.email_field :email,
+                      autofocus: true,
+                      autocomplete: "email",
+                      placeholder: t("auth.placeholder.email"),
+                      class: "ds-field__input" %>
+  </div>
+
+  <div>
+    <%= f.submit t("auth.submit.resend_unlock"), class: "ds-btn ds-btn--block ds-btn--primary" %>
+  </div>
+<% end %>
+
+<%= render "devise/shared/links" %>

@@ -1,0 +1,84 @@
+// =============================================================================
+// Paleta compartilhada do app
+// =============================================================================
+// Variáveis Sass (compilam para valores literais, não geram CSS). São a única
+// camada onde hex cru é permitido.
+//
+// Quem consome esta paleta são design_system/_tokens (fundamentos comuns) e
+// design_system/_theme_{app,auth} (tokens de contexto). Nenhum componente deve
+// importar este arquivo direto: componente consome token, não hex.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Fundos escuros — contexto de autenticação
+// -----------------------------------------------------------------------------
+$ink-900: #0B0F14; // fundo da página
+$ink-800: #12181F; // camadas elevadas / cards
+$ink-700: #1A222B; // superfície secundária
+
+// -----------------------------------------------------------------------------
+// Superfícies claras — contexto da área autenticada
+// -----------------------------------------------------------------------------
+$slate-000: #FFFFFF; // superfície principal
+$slate-050: #F7F8FA; // fundo da página
+$slate-100: #EFF2F5; // superfície secundária
+
+// -----------------------------------------------------------------------------
+// Texto
+// -----------------------------------------------------------------------------
+$graphite-900: #111418; // texto principal no claro
+$graphite-600: #5C6470; // texto secundário no claro
+$slate-400: #98A0AB; // texto desabilitado no claro
+$mist-400: #8A929E; // texto secundário no escuro
+$mist-200: #E8EAED; // texto principal no escuro
+$slate-600: #5A626D; // texto desabilitado no escuro
+
+// -----------------------------------------------------------------------------
+// Marca — verde-petróleo, remete a dinheiro sem o verde saturado de "lucro"
+// -----------------------------------------------------------------------------
+// Estas são as cores de PREENCHIMENTO (fundo de botão, selo, avatar). Como
+// texto sobre superfície clara nenhuma delas atinge 4,5:1 — ver os tons -700
+// abaixo, que existem exatamente para uso textual em WCAG AA.
+$mint-600: #0FA968; // cor primária (preenchimento)
+$mint-500: #10B981; // variação viva (hover)
+$mint-700: #0B7A4A; // verde de TEXTO no claro — pior caso 4,80:1 (superfície secundária)
+$mint-050: #E7F6EF; // tinta de seleção/ativo no claro
+
+// Acento informativo — links, foco e informação secundária
+$indigo-500: #5B8DEF; // preenchimento
+$blue-600: #2563EB; // informação de TEXTO no claro — 5,17:1 sobre branco
+
+// -----------------------------------------------------------------------------
+// Subpaleta de categorias — [category-badge] §7
+// -----------------------------------------------------------------------------
+// Conjunto ÚNICO de tons reutilizáveis para identificar categorias. O §7 exige
+// que exista como um conjunto documentado, e não como hex espalhado por view.
+//
+// Vermelho e âmbar ficam DE FORA de propósito: o §3 reserva essas duas famílias
+// para erro/perigo e atenção. Uma categoria chamada "Pets" em vermelho passaria
+// a ler como alerta.
+//
+// Cada tom tem duas partes: o tom de preenchimento (a tinta do chip) e o tom de
+// TEXTO, que é o escuro o suficiente para passar em AA sobre a própria tinta.
+$cat-mint: #0FA968;     $cat-mint-ink: #0B7A4A;
+$cat-teal: #0D9488;     $cat-teal-ink: #0F766E;
+$cat-cyan: #0891B2;     $cat-cyan-ink: #0E7490;
+$cat-sky: #0284C7;      $cat-sky-ink: #0369A1;
+$cat-blue: #2563EB;     $cat-blue-ink: #1D4ED8;
+$cat-indigo: #4F46E5;   $cat-indigo-ink: #4338CA;
+$cat-violet: #7C3AED;   $cat-violet-ink: #6D28D9;
+$cat-fuchsia: #A21CAF;  $cat-fuchsia-ink: #86198F;
+$cat-pink: #DB2777;     $cat-pink-ink: #BE185D;
+$cat-slate: #64748B;    $cat-slate-ink: #475569;
+
+// -----------------------------------------------------------------------------
+// Estados
+// -----------------------------------------------------------------------------
+// Os tons -700 são dimensionados pelo PIOR caso dos três — não pelo branco:
+// precisam passar também sobre --color-surface-muted (#EFF2F5).
+$red-500: #EF4444; // perigo (preenchimento)
+$red-700: #B91C1C; // perigo de TEXTO no claro — pior caso 5,76:1
+$green-500: #22C55E; // sucesso (preenchimento)
+$green-700: #17703A; // sucesso de TEXTO no claro — pior caso 5,47:1
+$amber-500: #F59E0B; // atenção (preenchimento)
+$amber-700: #A34A08; // atenção de TEXTO no claro — pior caso 5,28:1

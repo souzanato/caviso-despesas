@@ -1,0 +1,32 @@
+<%# locals: (sort:, count:) %>
+<%#
+  Faixa acima da lista: quantas despesas existem, e como estão ordenadas.
+
+  Substitui a pílula "Minha ordem" sozinha numa linha inteira. O select
+  continua sendo o mesmo controle, com o mesmo auto-submit e o mesmo `?sort=`
+  na URL.
+
+  "Minha ordem" existe porque a ordem arrastada precisa continuar alcançável:
+  sem essa opção, escolher "Custo" uma vez deixaria a ordem do usuário
+  inacessível para sempre.
+%>
+<%= form_with url: root_path, method: :get,
+              class: "ds-list-head",
+              data: { controller: "auto-submit" } do %>
+  <%= hidden_field_tag :ledger, params[:ledger] %>
+
+  <span class="ds-list-head__count"><%= t("home.list.count", count: count) %></span>
+
+  <%= select_tag :sort,
+                 options_for_select(
+                   [
+                     [ t("home.sort.manual"),   "manual" ],
+                     [ t("home.sort.cost"),     "cost" ],
+                     [ t("home.sort.category"), "category" ]
+                   ],
+                   sort
+                 ),
+                 class: "ds-list-head__select",
+                 aria: { label: t("home.sort.label") },
+                 data: { action: "change->auto-submit#submit" } %>
+<% end %>

@@ -1,0 +1,19 @@
+<%# locals: (title:, description: nil) %>
+<%#
+  Cabeçalho interno de uma tela autenticada ([page-header] §6).
+
+  A ação contextual entra por bloco, e não por parâmetro: ela é markup de
+  botão/link, e transformar isso em string tiraria a segurança de escape do ERB.
+%>
+<header class="ds-page-header">
+  <div class="ds-page-header__heading">
+    <h1 class="ds-page-header__title"><%= title %></h1>
+    <% if description.present? %>
+      <p class="ds-page-header__description"><%= description %></p>
+    <% end %>
+  </div>
+
+  <% if block_given? %>
+    <%= yield %>
+  <% end %>
+</header>

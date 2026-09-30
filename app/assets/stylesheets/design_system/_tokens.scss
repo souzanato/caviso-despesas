@@ -1,0 +1,84 @@
+// =============================================================================
+// Foundations compartilhados — DESIGN-SYSTEM.md §4
+// =============================================================================
+// FONTE ÚNICA do que é igual nos dois contextos visuais do produto:
+//
+//   Autenticação      -> theme = dark   (identidade própria, sempre escura)
+//   Área autenticada  -> theme = light  (padrão, sem depender de atributo)
+//
+// Aqui ficam apenas marca, semânticas de estado, geometria e movimento. Os
+// tokens que MUDAM entre os contextos (superfícies, texto, bordas, elevação)
+// vivem em _theme_app.scss e _theme_auth.scss — mesmo nome nos dois, valor
+// diferente. Nenhum componente decide qual tema está ativo: ele só consome o
+// nome.
+//
+// Cada bundle (`application.css`, `devise_auth.css`) importa este arquivo mais
+// o seu tema. Os valores são idênticos nos dois, então não há divergência.
+// =============================================================================
+
+@use "../palette" as palette;
+
+:root {
+  // ---------------------------------------------------------------------------
+  // Cor — semânticas compartilhadas
+  // ---------------------------------------------------------------------------
+  // Cores de PREENCHIMENTO: fundo de botão, selo, avatar, barra. São a
+  // identidade da marca e valem nos dois contextos.
+  --color-primary: #{palette.$mint-600};
+  --color-primary-hover: #{palette.$mint-500};
+  // Texto sobre preenchimento `primary`. Tinta escura, e não branca: branco
+  // sobre #0FA968 dá 3,05:1 e reprovaria em WCAG AA, enquanto esta dá 5,35:1.
+  --color-on-primary: #06251a;
+
+  --color-success: #{palette.$green-500};
+  --color-warning: #{palette.$amber-500};
+  --color-danger: #{palette.$red-500};
+  --color-info: #{palette.$indigo-500};
+
+  // Variantes suaves, translúcidas de propósito: funcionam sobre superfície
+  // clara e escura sem precisar de valor por contexto. Derivam da paleta para
+  // que a cor base continue existindo em um lugar só.
+  // [error-message] §5 pede token de erro "com fundo de baixa intensidade".
+  --color-danger-bg: #{rgba(palette.$red-500, 0.1)};
+  --color-danger-border: #{rgba(palette.$red-500, 0.32)};
+  --color-success-bg: #{rgba(palette.$green-500, 0.1)};
+  --color-success-border: #{rgba(palette.$green-500, 0.3)};
+  --color-warning-bg: #{rgba(palette.$amber-500, 0.1)};
+  --color-warning-border: #{rgba(palette.$amber-500, 0.32)};
+  --color-info-bg: #{rgba(palette.$indigo-500, 0.08)};
+
+  // ---------------------------------------------------------------------------
+  // Espaçamento — [spacing-tokens] §4
+  // ---------------------------------------------------------------------------
+  // Escala oficial em múltiplos de 4px. O sufixo é o valor em px dividido por 4.
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  // ---------------------------------------------------------------------------
+  // Raio — [radius-tokens] §4
+  // ---------------------------------------------------------------------------
+  --radius-sm: 8px;
+  --radius-md: 12px; // inputs e botões
+  --radius-lg: 16px; // cards principais
+  --radius-pill: 999px; // badges/chips
+
+  // ---------------------------------------------------------------------------
+  // Movimento
+  // ---------------------------------------------------------------------------
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 250ms;
+  --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --transition-base: var(--motion-base) var(--ease-standard);
+
+  // ---------------------------------------------------------------------------
+  // Acessibilidade — Rule 11 / WCAG 2.5.5
+  // ---------------------------------------------------------------------------
+  --tap-target: 44px;
+}

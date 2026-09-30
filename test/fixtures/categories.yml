@@ -1,0 +1,14 @@
+# Repare que "Moradia" existe para os DOIS usuários: a unicidade de nome é por
+# usuário, não global. Este fixture documenta essa regra e serve de base para o
+# teste que a verifica.
+moradia_renato:
+  user: renato
+  name: Moradia
+
+comunicacao_renato:
+  user: renato
+  name: Comunicação
+
+moradia_outro:
+  user: outro
+  name: Moradia

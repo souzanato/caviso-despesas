@@ -1,0 +1,38 @@
+<%# locals: (ledger:) %>
+<%#
+  [ledger-summary] §7 — situação da rubrica em três números.
+
+  Não é [balance-card]: é resumo de apoio, sem superfície própria. A lista de
+  despesas é o conteúdo; isto é moldura.
+%>
+<% total = ledger.total_amount %>
+<% paid = ledger.paid_amount %>
+<% percent = total.positive? ? (paid / total * 100).round : 0 %>
+
+<section class="ds-ledger-summary" id="ledger-summary">
+  <dl class="ds-ledger-summary__values">
+    <div class="ds-ledger-summary__cell">
+      <dt class="ds-ledger-summary__label"><%= t("home.summary.total") %></dt>
+      <dd class="ds-ledger-summary__number"><%= number_to_currency(total) %></dd>
+    </div>
+    <div class="ds-ledger-summary__cell">
+      <dt class="ds-ledger-summary__label"><%= t("home.summary.paid") %></dt>
+      <dd class="ds-ledger-summary__number"><%= number_to_currency(paid) %></dd>
+    </div>
+    <div class="ds-ledger-summary__cell ds-ledger-summary__cell--remaining">
+      <dt class="ds-ledger-summary__label"><%= t("home.summary.remaining") %></dt>
+      <dd class="ds-ledger-summary__number"><%= number_to_currency(ledger.remaining_amount) %></dd>
+    </div>
+  </dl>
+
+  <%# Sem limiares de alerta: pagar tudo é o objetivo, e passar de 100% não é
+      erro. Ver [progress-bar] §7. %>
+  <div class="ds-progress"
+       role="progressbar"
+       aria-valuenow="<%= percent %>"
+       aria-valuemin="0"
+       aria-valuemax="100"
+       aria-label="<%= t("home.summary.progress_label", ledger: ledger.name) %>">
+    <div class="ds-progress__fill" style="inline-size: <%= percent %>%"></div>
+  </div>
+</section>

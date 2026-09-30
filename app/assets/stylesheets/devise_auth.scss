@@ -1,0 +1,272 @@
+// =============================================================================
+// Estilos das telas de autenticação (Devise)
+// =============================================================================
+// Carregado APENAS nas telas de Devise — ver app/views/layouts/application.html.erb.
+// Todas as regras são baseadas em classes próprias (.auth-*). Isso é
+// proposital: como este arquivo pode ser carregado antes do Bootstrap, um
+// seletor de classe (0,1,0) sempre vence os resets de elemento do reboot
+// (0,0,1) na cascata, independente da ordem.
+//
+// Não redefinimos nenhuma classe do Bootstrap — só usamos as nossas.
+// =============================================================================
+
+// Foundations compartilhados (design_system/tokens) + o tema DARK, que é
+// exclusivo deste contexto (design_system/theme_auth). Importamos os dois aqui,
+// e não só via application.css, para que este bundle continue autossuficiente —
+// as telas de autenticação carregam as duas folhas, mas não devem depender da
+// outra.
+//
+// O tema escuro entra por `html:has(.auth-shell)`, que vence o `:root` claro da
+// área autenticada por especificidade. Ver o cabeçalho de _theme_auth.scss.
+@import "design_system/tokens";
+@import "design_system/theme_auth";
+// [button], [input-text] e [error-message] são compartilhados com a área
+// autenticada — um componente, dois contextos. Ver _components.scss.
+@import "design_system/components";
+
+// Geometria específica destas telas. Não é foundation: é a largura do card.
+:root {
+  --auth-card-width: 400px;
+}
+
+// -----------------------------------------------------------------------------
+// Shell: fundo com gradiente + brilhos e centralização do card
+// -----------------------------------------------------------------------------
+.auth-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  // Sem `justify-content: center`: a centralização é feita com `margin: auto`
+  // no card, que continua funcionando quando o conteúdo é maior que a tela
+  // (com justify-content o topo ficaria cortado e inalcançável).
+  padding: var(--space-4) 0 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(80rem 46rem at 12% -12%, var(--glow-primary), transparent 62%),
+    radial-gradient(62rem 40rem at 112% 118%, var(--glow-info), transparent 58%),
+    linear-gradient(135deg, var(--color-bg), var(--color-surface));
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+// -----------------------------------------------------------------------------
+// Card com glassmorphism sutil
+// -----------------------------------------------------------------------------
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  // Mobile: encosta no rodapé (alcance do polegar). `margin-top: auto` só
+  // distribui espaço livre — se o form for mais alto que a viewport, o card
+  // flui normalmente de cima e a página rola, sem cortar nada.
+  margin-top: auto;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+  background: var(--color-surface-glass);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--color-border);
+  // Só os cantos de cima: no mobile o card encosta na base da tela.
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--elevation-2);
+  animation: auth-card-in var(--motion-slow) var(--ease-standard) both;
+}
+
+@keyframes auth-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// A partir de tablet: card flutuante centralizado.
+@media (min-width: 640px) {
+  .auth-shell {
+    padding: var(--space-6);
+    justify-content: center;
+  }
+
+  .auth-card {
+    max-width: var(--auth-card-width);
+    margin: auto;
+    padding: var(--space-8) var(--space-6);
+    border-radius: var(--radius-lg);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Cabeçalho do card
+// -----------------------------------------------------------------------------
+.auth-card__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.auth-card__mark {
+  display: grid;
+  place-items: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-on-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  box-shadow: var(--shadow-primary);
+}
+
+.auth-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.auth-card__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+
+.auth-card__subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.auth-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+// -----------------------------------------------------------------------------
+// Formulário e campos
+// -----------------------------------------------------------------------------
+
+
+// "Lembrar de mim"
+
+// -----------------------------------------------------------------------------
+// Botões
+// -----------------------------------------------------------------------------
+
+
+// Estado de carregamento — pronto para ser acionado por JS/Hotwire:
+//   button.classList.add("is-loading")
+
+
+// -----------------------------------------------------------------------------
+// Passkey / biometria — login sem senha (tendência 2026)
+// -----------------------------------------------------------------------------
+// Ainda não há WebAuthn implementado. O estilo já está pronto para quando
+// existir: o botão deve ficar ACIMA do formulário de e-mail/senha, como ação
+// primária, seguido de .auth-divider. Ver o comentário em sessions/new.html.erb.
+
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+// Botão do provedor externo (Google) — vem de button_to em shared/_links.
+.auth-links__form {
+  width: 100%;
+  margin: 0;
+}
+
+
+// -----------------------------------------------------------------------------
+// Alerta de erros (shared/_error_messages)
+// -----------------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// Links auxiliares (shared/_links)
+// -----------------------------------------------------------------------------
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-links__item {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.auth-links__link,
+.auth-links a {
+  color: var(--color-info-text);
+  text-decoration: none;
+  transition: color var(--transition-base), opacity var(--transition-base);
+}
+
+.auth-links__link:hover,
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+// -----------------------------------------------------------------------------
+// Bloco de conta (registrations/edit)
+// -----------------------------------------------------------------------------
+.auth-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.auth-section__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.auth-section__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+// -----------------------------------------------------------------------------
+// Acessibilidade: respeita quem pediu menos movimento no sistema.
+// -----------------------------------------------------------------------------
+// O que é do `.ds-btn` / `.ds-field__input` fica em design_system/_components,
+// junto do componente. Aqui só o que é layout destas telas.
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .auth-links__link {
+    animation: none;
+    transition: none;
+  }
+}

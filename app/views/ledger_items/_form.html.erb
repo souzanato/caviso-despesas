@@ -1,0 +1,124 @@
+<%# locals: (ledger:, ledger_item:, error: nil, name_value: nil) %>
+<%#
+  Conteúdo do [modal] de despesa — [expense-modal] §10.
+
+  Serve para criar e para editar, e a diferença não é só a URL:
+
+  - CRIAR grava o Nome no cadastro da despesa (`name`) e cria o item;
+  - EDITAR grava no SNAPSHOT do item (`name_snapshot`), porque é o valor
+    próprio daquele período — a despesa compartilhada não é tocada.
+
+  A categoria vai por NOME, não por id: o mesmo campo serve para escolher uma
+  categoria existente e para criar uma nova, e quem resolve os dois casos é o
+  controller.
+%>
+<% editing = ledger_item.persisted? %>
+
+<%= form_with model: ledger_item,
+              url: editing ? details_ledger_item_path(ledger_item) : ledger_items_path,
+              method: editing ? :patch : :post,
+              class: "ds-form" do |f| %>
+  <% unless editing %>
+    <%= hidden_field_tag :ledger_id, ledger.id %>
+  <% end %>
+
+  <h2 class="ds-modal__title">
+    <%= editing ? t("expenses.edit.title") : t("expenses.new.title") %>
+  </h2>
+
+  <% if error.present? %>
+    <div class="ds-alert ds-alert--error" role="alert">
+      <div class="ds-alert__content">
+        <p class="ds-alert__item"><%= error %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="ds-field">
+    <%= f.label :name, t("expenses.form.name_label"), class: "ds-field__label" %>
+    <% if editing %>
+      <%= f.text_field :name_snapshot, class: "ds-field__input", autocomplete: "off" %>
+    <% else %>
+      <%# `text_field_tag` com valor explícito, e não `f.text_field :name`:
+          `LedgerItem` não tem atributo `name` (o nome do cadastro vira
+          `name_snapshot` no item), então o objeto não tem de onde devolver o
+          que foi digitado quando a validação falha. %>
+      <%= text_field_tag "ledger_item[name]", name_value,
+                         class: "ds-field__input", autocomplete: "off",
+                         placeholder: t("expenses.form.name_placeholder") %>
+    <% end %>
+  </div>
+
+  <%# Sem `data-controller="currency"` aqui o Stimulus nunca instancia o
+      controller: os alvos e a ação existem no HTML, mas nada os liga, e a
+      máscara simplesmente não acontece. %>
+  <div class="ds-field" data-controller="currency">
+    <%= f.label :amount, t("expenses.form.amount_label"), class: "ds-field__label" %>
+    <%# Dois campos: um mostra, outro carrega. O visível exibe moeda formatada
+        e o oculto guarda o decimal que o Rails converte sem ambiguidade. %>
+    <input type="text"
+           inputmode="decimal"
+           class="ds-field__input ds-field__input--money"
+           value="<%= number_to_currency(ledger_item.amount || 0) %>"
+           data-currency-target="display"
+           data-action="input->currency#format"
+           aria-describedby="expense-amount-hint">
+    <%= f.hidden_field :amount, data: { currency_target: "value" } %>
+    <p class="ds-field__hint" id="expense-amount-hint"><%= t("expenses.form.amount_hint") %></p>
+  </div>
+
+  <div class="ds-field" data-controller="combobox">
+    <%= f.label :category_name, t("expenses.form.category_label"), class: "ds-field__label" %>
+
+    <%#
+      O PRÓPRIO campo carrega `ledger_item[category_name]` — não há campo oculto
+      espelhando.
+
+      Antes havia, e ele só era preenchido ao clicar numa opção ou em "Criar".
+      Quem digitasse a categoria e fosse direto para Salvar enviava vazio: foi
+      exatamente o que derrubou o primeiro envio. Com um campo só, o que está
+      escrito é o que é enviado.
+
+      Na edição já vem preenchido, então não tocar no campo mantém a categoria.
+    %>
+    <input type="text"
+           name="ledger_item[category_name]"
+           class="ds-field__input"
+           autocomplete="off"
+           role="combobox"
+           aria-expanded="false"
+           aria-autocomplete="list"
+           required
+           value="<%= ledger_item.category_name_snapshot %>"
+           data-combobox-target="input"
+           data-action="input->combobox#filter focus->combobox#open"
+           placeholder="<%= t("expenses.form.category_placeholder") %>">
+
+    <ul class="ds-combobox" data-combobox-target="list" hidden>
+      <% ledger.user.categories.order(Arel.sql("lower(name)")).each do |category| %>
+        <li data-combobox-target="option" data-combobox-name="<%= category.name %>">
+          <button type="button" class="ds-combobox__option"
+                  data-action="click->combobox#select">
+            <span class="ds-category-badge ds-category-badge--<%= category.color_tone %>">
+              <span class="ds-category-badge__dot" aria-hidden="true"></span>
+              <%= category.name %>
+            </span>
+          </button>
+        </li>
+      <% end %>
+
+      <li data-combobox-target="create" hidden>
+        <button type="button" class="ds-combobox__option ds-combobox__option--create"
+                data-action="click->combobox#create"></button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="ds-modal__actions">
+    <button type="button" class="ds-btn ds-btn--secondary" data-action="click->modal#close">
+      <%= t("expenses.form.cancel") %>
+    </button>
+    <%= f.submit editing ? t("expenses.form.submit_update") : t("expenses.form.submit"),
+                 class: "ds-btn ds-btn--block ds-btn--primary" %>
+  </div>
+<% end %>

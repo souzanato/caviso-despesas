@@ -1,0 +1,33 @@
+<%# Título/card/flash vêm do layout dedicado. Aqui fica só o formulário. %>
+
+<%= form_for(resource, as: resource_name, url: password_path(resource_name),
+             html: { method: :put, class: "ds-form" }) do |f| %>
+  <%= render "shared/error_messages", resource: resource, title_key: "auth.errors.title" %>
+  <%= f.hidden_field :reset_password_token %>
+
+  <div class="ds-field">
+    <%= f.label :password, t("auth.labels.new_password"), class: "ds-field__label" %>
+    <%= f.password_field :password,
+                         autofocus: true,
+                         autocomplete: "new-password",
+                         placeholder: t("auth.placeholder.password"),
+                         class: "ds-field__input" %>
+    <% if @minimum_password_length %>
+      <p class="ds-field__hint"><%= t("auth.hint.password_min", count: @minimum_password_length) %></p>
+    <% end %>
+  </div>
+
+  <div class="ds-field">
+    <%= f.label :password_confirmation, t("auth.labels.confirm_new_password"), class: "ds-field__label" %>
+    <%= f.password_field :password_confirmation,
+                         autocomplete: "new-password",
+                         placeholder: t("auth.placeholder.password"),
+                         class: "ds-field__input" %>
+  </div>
+
+  <div>
+    <%= f.submit t("auth.submit.change_password"), class: "ds-btn ds-btn--block ds-btn--primary" %>
+  </div>
+<% end %>
+
+<%= render "devise/shared/links" %>

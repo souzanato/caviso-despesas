@@ -1,0 +1,14 @@
+# Fixtures pulam validações e callbacks, então o hash de senha só precisa
+# satisfazer a coluna NOT NULL. Está derivado de verdade para que um teste de
+# integração futuro consiga autenticar com "senha12345".
+renato:
+  email: renato@example.com
+  username: renato
+  full_name: Renato de Souza
+  encrypted_password: <%= Devise::Encryptor.digest(User, "senha12345") %>
+
+outro:
+  email: outro@example.com
+  username: outro
+  full_name: Outro Usuário
+  encrypted_password: <%= Devise::Encryptor.digest(User, "senha12345") %>

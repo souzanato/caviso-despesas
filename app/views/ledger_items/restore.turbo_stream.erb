@@ -1,0 +1,23 @@
+<%#
+  Desfaz a remoção e confirma em texto.
+
+  A mensagem troca de "removida · Desfazer" para "restaurada" sem ação: o
+  desfazer já foi usado, e oferecê-lo de novo seria um botão que não faz nada.
+%>
+<%= turbo_stream.replace "expense-list",
+                         partial: "shared/expense_list",
+                         locals: { ledger_items: @ledger_items, ledger: @ledger, sort: ledger_sort } %>
+
+<%= turbo_stream.replace "ledger-summary",
+                         partial: "shared/ledger_summary",
+                         locals: { ledger: @ledger } %>
+
+<%= turbo_stream.update "snackbar",
+                        partial: "shared/snackbar",
+                        locals: { message: t("home.row.restored") } %>
+
+<%# O saldo da rubrica selecionada muda junto — sem isto o picker fica
+    mostrando o "falta" antigo até recarregar a pagina. %>
+<%= turbo_stream.replace dom_id(@ledger, :picker_amount),
+                         partial: "shared/picker_amount",
+                         locals: { ledger: @ledger } %>

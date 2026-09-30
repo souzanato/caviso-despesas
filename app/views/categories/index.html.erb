@@ -1,0 +1,39 @@
+<% content_for :title, t("categories.index.title") %>
+
+<%= render "shared/page_header",
+           title: t("categories.index.title"),
+           description: t("categories.index.description") do %>
+  <%= link_to t("categories.index.new"), new_category_path, class: "ds-btn ds-btn--primary" %>
+<% end %>
+
+<% if @categories.any? %>
+  <ul class="ds-category-list">
+    <% @categories.each do |category| %>
+      <li class="ds-category-list__row">
+        <%# A cor do chip vem de Category#color_tone — a view não escolhe tom. %>
+        <span class="ds-category-badge ds-category-badge--<%= category.color_tone %>">
+          <span class="ds-category-badge__dot" aria-hidden="true"></span>
+          <%= category.name %>
+        </span>
+
+        <div class="ds-category-list__actions">
+          <%= link_to t("categories.row.edit"), edit_category_path(category),
+                      class: "ds-btn ds-btn--secondary ds-btn--compact" %>
+
+          <%= button_to t("categories.row.destroy"), category_path(category),
+                        method: :delete,
+                        class: "ds-btn ds-btn--danger ds-btn--compact",
+                        form: { class: "ds-inline-form" },
+                        data: { turbo_confirm: t("categories.confirm.destroy", name: category.name) } %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <div class="ds-empty-state">
+    <i class="bi bi-tags ds-empty-state__icon" aria-hidden="true"></i>
+    <p class="ds-empty-state__title"><%= t("categories.index.empty_title") %></p>
+    <p class="ds-empty-state__text"><%= t("categories.index.empty_text") %></p>
+    <%= link_to t("categories.index.new"), new_category_path, class: "ds-btn ds-btn--primary" %>
+  </div>
+<% end %>

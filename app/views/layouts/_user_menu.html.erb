@@ -1,0 +1,46 @@
+<%#
+  Avatar + dropdown do usuário. O comportamento (abrir, fechar, Escape,
+  navegação por setas) é do componente dropdown do Bootstrap, que já está no
+  bundle — por isso os data-bs-*.
+%>
+<div class="dropdown">
+  <button type="button"
+          class="app-avatar"
+          id="app-user-menu-button"
+          data-bs-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="app-user-menu"
+          aria-label="<%= t("app.topbar.user_menu") %>">
+    <%# Sem anexo de avatar no model: sempre iniciais. Ver app/helpers/user_helper.rb. %>
+    <%= user_initials(current_user) %>
+  </button>
+
+  <ul class="dropdown-menu dropdown-menu-end app-user__menu"
+      id="app-user-menu"
+      aria-labelledby="app-user-menu-button">
+    <li>
+      <%= link_to edit_user_registration_path, class: "dropdown-item" do %>
+        <i class="bi bi-person-gear" aria-hidden="true"></i>
+        <%= t("app.topbar.account") %>
+      <% end %>
+    </li>
+
+    <li><hr class="dropdown-divider"></li>
+
+    <li>
+      <%#
+        button_to e não link: a rota de sign out do Devise é DELETE-only
+        (config.sign_out_via = :delete). O formulário garante o método certo
+        mesmo sem JavaScript.
+      %>
+      <%= button_to destroy_user_session_path,
+                    method: :delete,
+                    class: "dropdown-item",
+                    form: { class: "m-0" } do %>
+        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+        <%= t("app.topbar.sign_out") %>
+      <% end %>
+    </li>
+  </ul>
+</div>

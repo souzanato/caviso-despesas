@@ -1,0 +1,34 @@
+<footer class="app-footer">
+  <p class="app-footer__date">
+    <i class="bi bi-calendar3" aria-hidden="true"></i>
+    <time datetime="<%= Date.current.iso8601 %>"><%= l(Date.current, format: :long) %></time>
+  </p>
+
+  <div class="app-footer__gadgets" role="group" aria-label="<%= t("app.footer.gadgets_label") %>">
+    <%#
+      Gadgets ainda sem comportamento: por enquanto são só os pontos de
+      acionamento, identificados por data-gadget para receber a funcionalidade
+      depois.
+
+      A classe --pending marca isso visualmente (borda tracejada, sem hover) e o
+      aviso entra no nome acessível, porque o §6 do Design System proíbe que um
+      gadget sem comportamento pareça funcional. Ao implementar, remova a classe
+      e volte o aria-label para o nome puro.
+    %>
+    <button type="button"
+            class="app-gadget app-gadget--pending"
+            data-gadget="calendar"
+            aria-label="<%= t("app.footer.gadget_pending", name: t("app.footer.calendar")) %>">
+      <i class="bi bi-calendar3" aria-hidden="true"></i>
+      <span class="app-gadget__label"><%= t("app.footer.calendar") %></span>
+    </button>
+
+    <button type="button"
+            class="app-gadget app-gadget--pending"
+            data-gadget="calculator"
+            aria-label="<%= t("app.footer.gadget_pending", name: t("app.footer.calculator")) %>">
+      <i class="bi bi-calculator" aria-hidden="true"></i>
+      <span class="app-gadget__label"><%= t("app.footer.calculator") %></span>
+    </button>
+  </div>
+</footer>

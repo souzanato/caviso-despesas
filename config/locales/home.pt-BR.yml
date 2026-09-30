@@ -1,0 +1,63 @@
+pt-BR:
+  home:
+    title: Despesas
+    new_expense: Nova despesa
+
+    no_ledgers:
+      title: Nenhuma rubrica ainda
+      text: >-
+        Uma rubrica agrupa suas despesas: um mês, uma viagem, o que você quiser.
+      action: Criar primeira rubrica
+
+    empty_ledger:
+      title: Nenhuma despesa nesta rubrica
+      text: As despesas que você adicionar aqui ficam guardadas com o valor deste momento.
+
+    picker:
+      title: Rubricas
+      new: Nova rubrica
+      search: Buscar rubrica
+      clear: Limpar busca
+      no_results: Nenhuma rubrica encontrada
+      # O total vai no rótulo: saber quantas há antes de expandir evita o toque
+      # que só serve para descobrir que não valia a pena.
+      see_all: "Ver todas (%{count})"
+      empty: sem despesas
+      settled: quitada
+      # Só o número. A coluna tem 240px, e a palavra "faltam" empurrava o nome
+      # da rubrica para o truncamento. O rótulo já diz que é o que falta.
+      remaining: "%{amount}"
+
+    summary:
+      total: Total
+      paid: Pago
+      remaining: Falta
+      progress_label: "Progresso de pagamento de %{ledger}"
+
+    # "Minha ordem" existe porque a ordem arrastada precisa continuar
+    # alcançável: sem essa opção, escolher "Custo" uma vez deixaria a ordem do
+    # usuário inacessível para sempre.
+    list:
+      count:
+        one: 1 despesa
+        other: "%{count} despesas"
+
+    sort:
+      label: Ordenar por
+      manual: Minha ordem
+      cost: Custo
+      category: Categoria
+
+    row:
+      mark_paid: "Marcar %{name} como paga"
+      remove: Remover
+      remove_label: "Remover %{name} desta rubrica"
+      removed: "%{name} foi removida desta rubrica."
+      restored: Despesa restaurada.
+      reorder: "Reordenar %{name}. Use as setas para cima e para baixo."
+      reorder_mode: Reordenar despesas
+      reorder_mode_done: Concluir reordenação
+
+  # Ação da variante `undo` do [snackbar] §8.
+  shared:
+    undo: Desfazer

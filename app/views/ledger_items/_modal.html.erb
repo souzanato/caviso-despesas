@@ -1,0 +1,13 @@
+<%# locals: (ledger:, ledger_item:) %>
+<dialog class="ds-modal"
+        id="expense-modal"
+        data-modal-target="dialog"
+        data-action="click->modal#backdrop"
+        aria-label="<%= t("expenses.new.title") %>">
+  <%# `<div>`, e não `<turbo-frame>`: ver app/views/ledgers/_modal.html.erb.
+      O frame escopa a requisição, e qualquer resposta que não seja um stream
+      passa a exigir um frame de mesmo id na página de destino. %>
+  <div id="expense-form">
+    <%= render "ledger_items/form", ledger: ledger, ledger_item: ledger_item %>
+  </div>
+</dialog>

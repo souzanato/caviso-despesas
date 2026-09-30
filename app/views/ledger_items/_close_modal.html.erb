@@ -1,0 +1,8 @@
+<%#
+  Marcador que fecha o modal depois de salvar.
+
+  Fechar é efeito no DOM, não conteúdo — e um <script> no turbo_stream não é
+  confiável (e a CSP pode bloqueá-lo). Este elemento só existe na resposta de
+  SUCESSO: no erro, o modal precisa continuar aberto com o que foi digitado.
+%>
+<div data-controller="modal-close" data-modal-close-target-id-value="expense-modal" hidden></div>

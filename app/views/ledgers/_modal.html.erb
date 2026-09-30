@@ -1,0 +1,29 @@
+<%# locals: (ledger:, previous_ledger: nil, id: "rubrica-modal") %>
+<%#
+  O <dialog> em si, separado do formulário.
+
+  O `id` é parâmetro porque a tela tem DOIS: um para criar e outro para
+  renomear. O frame leva o mesmo id como prefixo, para o Turbo substituir só o
+  formulário daquele diálogo.
+%>
+<dialog class="ds-modal"
+        id="<%= id %>"
+        data-modal-target="dialog"
+        data-action="click->modal#backdrop"
+        aria-label="<%= ledger.persisted? ? t("ledgers.edit.title") : t("ledgers.new.title") %>">
+  <%#
+    `<div>`, e NÃO `<turbo-frame>`.
+
+    O frame escopa a requisição com o header `Turbo-Frame`. Como o `create`
+    responde com redirect, o Turbo seguiria o destino procurando um
+    `<turbo-frame id="rubrica-modal-form">` na página nova — que não existe. Não
+    acha, e não faz nada: era o "clico em Criar e nada acontece".
+
+    O container só precisa de um id para o caminho de erro substituir o
+    formulário. `turbo_stream.update "rubrica-modal-form"` funciona igual com
+    uma div, e o redirect volta a ser uma navegação normal — que fecha o modal.
+  %>
+  <div id="<%= id %>-form">
+    <%= render "ledgers/form", ledger: ledger, previous_ledger: previous_ledger %>
+  </div>
+</dialog>

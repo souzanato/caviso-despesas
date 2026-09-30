@@ -1,0 +1,7 @@
+# Copy de componentes que aparecem em mais de um contexto.
+pt-BR:
+  shared:
+    errors:
+      title:
+        one: "1 erro impediu de salvar:"
+        other: "%{count} erros impediram de salvar:"

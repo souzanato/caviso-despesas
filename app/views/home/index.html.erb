@@ -1,0 +1,187 @@
+<% content_for :title, t("home.title") %>
+
+<% if @ledger.nil? %>
+  <%# Primeiro uso. Nada é criado automaticamente: o nome e o período de uma
+      rubrica são decisão do usuário, e uma rubrica que ele não criou parece
+      dado alheio. %>
+  <div class="ds-home" data-controller="modal">
+    <div class="ds-empty-state">
+      <i class="bi bi-journal-text ds-empty-state__icon" aria-hidden="true"></i>
+      <p class="ds-empty-state__title"><%= t("home.no_ledgers.title") %></p>
+      <p class="ds-empty-state__text"><%= t("home.no_ledgers.text") %></p>
+      <button type="button"
+              class="ds-btn ds-btn--primary"
+              data-action="click->modal#open"
+              data-modal-id-param="rubrica-modal">
+        <%= t("home.no_ledgers.action") %>
+      </button>
+    </div>
+
+    <%= render "ledgers/modal", ledger: current_user.ledgers.new, previous_ledger: nil %>
+  </div>
+<% else %>
+  <%#
+    Data-controllers na raiz: `modal` abre os três diálogos da tela por
+    parâmetro de id, `reorder-mode` liga e desliga as alças de arrasto, e
+    `picker` abre o painel de rubricas.
+  %>
+  <div class="ds-home"
+       data-controller="modal reorder-mode picker"
+       data-reorder-mode-start-label="<%= t("home.row.reorder_mode") %>"
+       data-reorder-mode-done-label="<%= t("home.row.reorder_mode_done") %>"
+       data-picker-label-value="<%= t("home.picker.title") %>"
+       <%# Quantas rubricas a folha mostra antes de "Ver todas". Vive no markup,
+           e não como constante no JS: é decisão de produto, e quem a toma lê
+           esta tela — não o controller. %>
+       data-picker-limit-value="12">
+
+    <div class="ds-ledger-pinned">
+      <div class="ds-titlebar">
+        <%#
+          O título da tela É o botão do seletor. Antes havia um h1 com o nome da
+          rubrica e uma linha "Rubricas" logo acima, dizendo a mesma coisa duas
+          vezes — 44px que a lista precisa para caber mais uma despesa.
+        %>
+        <h1 class="ds-titlebar__heading">
+          <button type="button"
+                  class="ds-titlebar__toggle"
+                  data-picker-target="toggle"
+                  data-action="click->picker#toggle"
+                  aria-expanded="false"
+                  aria-controls="rubrica-picker-body">
+            <span class="ds-titlebar__name"><%= @ledger.name %></span>
+            <i class="bi bi-chevron-down ds-titlebar__chevron" aria-hidden="true"></i>
+          </button>
+        </h1>
+
+        <%#
+          Um botão ⋯ no lugar de lápis e lixeira lado a lado: dois ícones
+          destrutivos adjacentes, a um toque de apagar uma rubrica com 39
+          despesas, era pedir o erro.
+
+          Usa o `popover` NATIVO — Escape, clique fora e empilhamento vêm do
+          navegador, sem JS nosso.
+        %>
+        <button type="button"
+                class="app-icon-btn"
+                popovertarget="rubrica-actions"
+                aria-haspopup="menu"
+                aria-label="<%= t("ledgers.actions.menu") %>">
+          <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <%= render "shared/ledger_summary", ledger: @ledger %>
+    </div>
+
+    <%#
+      Backdrop da folha. É IRMÃO do painel, por dois motivos: dentro dele o
+      `overflow: hidden` da folha o recortaria, e ele precisa ficar numa camada
+      entre o conteúdo e o painel. Aqui dentro ele já é alvo do controller
+      `picker`, que vive na raiz desta tela.
+
+      No desktop nunca aparece — a coluna não é modal.
+    %>
+    <div class="ds-picker__backdrop"
+         data-picker-target="backdrop"
+         data-action="click->picker#close"
+         hidden></div>
+
+    <%#
+      O `id` é do PAINEL, não do corpo interno: é o painel que o botão do
+      título abre e fecha, e é ele que o `aria-controls` precisa apontar.
+    %>
+    <div class="ds-picker__panel" id="rubrica-picker-body" data-picker-target="panel" hidden>
+      <%= render "shared/rubrica_picker", ledgers: @ledgers, selected: @ledger %>
+    </div>
+
+    <div id="rubrica-actions" popover class="ds-menu" role="menu" data-controller="menu">
+      <%# Criar vem primeiro: é a ação construtiva, e a mais frequente das três. %>
+      <button type="button"
+              class="ds-menu__item"
+              role="menuitem"
+              popovertarget="rubrica-actions"
+              popovertargetaction="hide"
+              data-action="click->modal#open"
+              data-modal-id-param="rubrica-modal">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        <%= t("home.picker.new") %>
+      </button>
+
+      <button type="button"
+              class="ds-menu__item"
+              role="menuitem"
+              popovertarget="rubrica-actions"
+              popovertargetaction="hide"
+              data-action="click->modal#open"
+              data-modal-id-param="rubrica-edit-modal">
+        <i class="bi bi-pencil" aria-hidden="true"></i>
+        <%= t("ledgers.actions.rename") %>
+      </button>
+
+      <%#
+        Reordenar.
+
+        Com a ordem manual, alterna o modo de reordenação (e some no desktop,
+        onde as alças já ficam visíveis — ver o CSS).
+
+        Com ordenação calculada, as alças não existem e o usuário não tem como
+        saber por quê. Aqui o item LEVA de volta para "Minha ordem", que é o
+        único jeito de reordenar — senão a função fica sem porta de entrada.
+      %>
+      <% if @sort == "manual" %>
+        <button type="button"
+                class="ds-menu__item ds-menu__item--reorder"
+                role="menuitem"
+                popovertarget="rubrica-actions"
+                popovertargetaction="hide"
+                data-action="click->reorder-mode#toggle"
+                data-reorder-mode-target="label">
+          <i class="bi bi-grip-vertical" aria-hidden="true"></i>
+          <%= t("home.row.reorder_mode") %>
+        </button>
+      <% else %>
+        <a class="ds-menu__item"
+           role="menuitem"
+           href="<%= root_path(ledger: @ledger.id, sort: "manual") %>">
+          <i class="bi bi-grip-vertical" aria-hidden="true"></i>
+          <%= t("home.row.reorder_mode") %>
+        </a>
+      <% end %>
+
+      <hr class="ds-menu__divider">
+
+      <button type="button"
+              class="ds-menu__item ds-menu__item--danger"
+              role="menuitem"
+              popovertarget="rubrica-actions"
+              popovertargetaction="hide"
+              data-action="click->modal#open"
+              data-modal-id-param="rubrica-delete-modal">
+        <i class="bi bi-trash3" aria-hidden="true"></i>
+        <%= t("ledgers.actions.delete") %>
+      </button>
+    </div>
+
+    <div class="ds-home__detail">
+      <%= render "shared/list_head", sort: @sort, count: @ledger_items.size %>
+      <%= render "shared/expense_list", ledger_items: @ledger_items, ledger: @ledger, sort: @sort %>
+
+      <div class="ds-expense-actions">
+        <button type="button"
+                class="ds-btn ds-btn--block ds-btn--primary"
+                data-action="click->modal#open"
+                data-modal-id-param="expense-modal">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>
+          <%= t("home.new_expense") %>
+        </button>
+      </div>
+    </div>
+
+    <%= render "ledger_items/modal", ledger: @ledger, ledger_item: LedgerItem.new %>
+    <%= render "ledgers/modal", ledger: current_user.ledgers.new,
+                                previous_ledger: @ledgers.first %>
+    <%= render "ledgers/modal", ledger: @ledger, id: "rubrica-edit-modal" %>
+    <%= render "ledgers/delete_modal", ledger: @ledger %>
+  </div>
+<% end %>

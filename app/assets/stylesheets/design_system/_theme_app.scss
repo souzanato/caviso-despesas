@@ -1,0 +1,96 @@
+// =============================================================================
+// Contexto visual: ÁREA AUTENTICADA — theme = light  (DESIGN-SYSTEM.md §4)
+// =============================================================================
+// Light é o PADRÃO desta área. Não depende de `data-theme`, de classe no <html>
+// nem de `prefers-color-scheme`: os valores estão em `:root` e valem por si.
+//
+// Este arquivo define apenas os tokens que MUDAM entre contextos. Os que não
+// mudam (marca, semânticas de estado, espaçamento, raio, movimento) vêm de
+// design_system/_tokens. Os nomes daqui são exatamente os mesmos que
+// _theme_auth.scss usa — só os valores diferem.
+//
+// Estética: clara, limpa, com respiro, sombras mínimas. Superfícies em três
+// níveis — fundo off-white, superfície branca, superfície secundária em cinza
+// muito claro — separadas por borda discreta, não por sombra.
+// =============================================================================
+
+@use "../palette" as palette;
+
+:root {
+  // --- Superfícies -----------------------------------------------------------
+  --color-bg: #{palette.$slate-050}; // fundo da página
+  --color-surface: #{palette.$slate-000}; // cards, topbar, sidebar, rodapé
+  --color-surface-muted: #{palette.$slate-100}; // superfície secundária
+  --color-surface-hover: rgba(17, 20, 24, 0.04);
+  --color-surface-input: #{palette.$slate-000};
+
+  // --- Texto -----------------------------------------------------------------
+  --color-text: #{palette.$graphite-900}; // 18,5:1 sobre branco
+  --color-text-muted: #{palette.$graphite-600}; // 5,98:1 sobre branco
+  --color-text-disabled: #{palette.$slate-400}; // isento de AA (estado inativo)
+
+  // --- Bordas ----------------------------------------------------------------
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.16);
+
+  // --- Semânticas como TEXTO -------------------------------------------------
+  // As cores de preenchimento (`--color-primary`, `--color-danger`, ...) são
+  // definidas em _tokens e NÃO atingem 4,5:1 sobre superfície clara. Para
+  // qualquer uso textual — item ativo, link, valor positivo, mensagem de erro —
+  // usar estas variantes, que existem só para isso.
+  --color-primary-text: #{palette.$mint-700}; // 5,05:1 sobre branco
+  --color-success-text: #{palette.$green-700}; // 5,02:1
+  --color-warning-text: #{palette.$amber-700}; // 5,02:1
+  --color-danger-text: #{palette.$red-700}; // 6,47:1
+  --color-info-text: #{palette.$blue-600}; // 5,17:1
+
+  // Tinta de seleção/ativo (item de navegação ativo, linha selecionada).
+  --color-primary-bg: #{palette.$mint-050};
+
+  // --- Subpaleta de categorias — [category-badge] §7 -------------------------
+  // Dez tons, cada um com a tinta do chip e a cor de TEXTO correspondente,
+  // dimensionada para passar em AA sobre essa tinta. Vive no tema do app
+  // porque o badge só existe na área autenticada — não há chip de categoria nas
+  // telas de autenticação.
+  //
+  // Qual tom cada categoria usa é decidido por `Category#color_index`, uma
+  // função determinística do nome. Um tom nunca é escolhido na view.
+  --color-cat-mint-bg: #{rgba(palette.$cat-mint, 0.12)};
+  --color-cat-mint-text: #{palette.$cat-mint-ink};
+  --color-cat-teal-bg: #{rgba(palette.$cat-teal, 0.12)};
+  --color-cat-teal-text: #{palette.$cat-teal-ink};
+  --color-cat-cyan-bg: #{rgba(palette.$cat-cyan, 0.12)};
+  --color-cat-cyan-text: #{palette.$cat-cyan-ink};
+  --color-cat-sky-bg: #{rgba(palette.$cat-sky, 0.12)};
+  --color-cat-sky-text: #{palette.$cat-sky-ink};
+  --color-cat-blue-bg: #{rgba(palette.$cat-blue, 0.12)};
+  --color-cat-blue-text: #{palette.$cat-blue-ink};
+  --color-cat-indigo-bg: #{rgba(palette.$cat-indigo, 0.12)};
+  --color-cat-indigo-text: #{palette.$cat-indigo-ink};
+  --color-cat-violet-bg: #{rgba(palette.$cat-violet, 0.12)};
+  --color-cat-violet-text: #{palette.$cat-violet-ink};
+  --color-cat-fuchsia-bg: #{rgba(palette.$cat-fuchsia, 0.12)};
+  --color-cat-fuchsia-text: #{palette.$cat-fuchsia-ink};
+  --color-cat-pink-bg: #{rgba(palette.$cat-pink, 0.12)};
+  --color-cat-pink-text: #{palette.$cat-pink-ink};
+  --color-cat-slate-bg: #{rgba(palette.$cat-slate, 0.14)};
+  --color-cat-slate-text: #{palette.$cat-slate-ink};
+
+  // --- Foco ------------------------------------------------------------------
+  --focus-ring: rgba(15, 169, 104, 0.25);
+  --focus-ring-info: rgba(37, 99, 235, 0.28);
+
+  // --- Elevação --------------------------------------------------------------
+  // Sombras contidas: no claro elas ajudam a separar camadas, mas o grosso da
+  // separação continua sendo a borda discreta.
+  --elevation-1: 0 1px 2px rgba(17, 20, 24, 0.06);
+  --elevation-2: 0 10px 30px -12px rgba(17, 20, 24, 0.18);
+  --shadow-primary: 0 8px 20px -10px rgba(15, 169, 104, 0.45);
+}
+
+// O corpo da área autenticada usa o fundo da página. Fica aqui, e não no
+// app_shell, para que os dois contextos declarem sua própria base.
+body:has(.app) {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}

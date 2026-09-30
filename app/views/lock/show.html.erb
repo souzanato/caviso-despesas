@@ -1,0 +1,22 @@
+<%#
+  Tela de bloqueio.
+
+  O título ("Sem permissão") e a mensagem ("Você não tem permissão. Clique em
+  Sair.") NÃO estão aqui: vêm do layout `devise`, pelo AuthHelper, a partir de
+  `auth.screens.lock_show.*` — do mesmo jeito que as telas do Devise. Aqui fica
+  só o que é específico desta tela.
+
+  O layout já renderiza `shared/flash` e o card; não repetir.
+%>
+<%#
+  button_to e não link: a rota de sign out do Devise é DELETE-only
+  (config.sign_out_via = :delete). O formulário garante o método certo mesmo
+  sem JavaScript — e sem JS é justamente o caso em que o usuário mais precisa
+  conseguir sair.
+%>
+<%= button_to destroy_user_session_path,
+              method: :delete,
+              class: "ds-btn ds-btn--block ds-btn--primary" do %>
+  <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+  <%= t("app.topbar.sign_out") %>
+<% end %>

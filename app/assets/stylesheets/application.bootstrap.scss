@@ -1,0 +1,13 @@
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons';
+// Foundations compartilhados (DESIGN-SYSTEM.md §4) + o tema da área
+// autenticada (light, padrão). Precisam vir antes de qualquer componente, que
+// só consome tokens.
+@import 'design_system/tokens';
+@import 'design_system/theme_app';
+// Componentes compartilhados com o contexto de autenticação ([button],
+// [input-text], [error-message]). Ver o cabeçalho do arquivo.
+@import 'design_system/components';
+// Shell da aplicação (topbar, sidebar, conteúdo, rodapé).
+// Por último, para poder ajustar o que o Bootstrap define.
+@import 'app_shell';

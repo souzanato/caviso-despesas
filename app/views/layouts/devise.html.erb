@@ -1,0 +1,39 @@
+<%#
+  Layout dedicado das telas de autenticação.
+
+  Aplicado por Users::{Sessions,Registrations,Passwords,Confirmations,Unlocks}
+  Controller, que sobrescrevem os controllers do Devise só para declarar
+  `layout "devise"` (ver app/controllers/users/).
+
+  Diferente do layout da aplicação, aqui o card NÃO é opt-in: qualquer view
+  renderizada por esses controllers ganha o shell, o cabeçalho e o flash
+  automaticamente. As views de app/views/devise só fornecem o formulário.
+%>
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= content_for(:title).presence || auth_screen_title || t("app.name") %></title>
+    <%= render "layouts/head", extra_stylesheet: "devise_auth" %>
+  </head>
+
+  <body>
+    <div class="auth-shell">
+      <main class="auth-card">
+        <header class="auth-card__brand">
+          <span class="auth-card__mark" aria-hidden="true"><%= t("app.name").first %></span>
+          <div class="auth-card__heading">
+            <h1 class="auth-card__title"><%= auth_screen_title %></h1>
+            <% if auth_screen_subtitle.present? %>
+              <p class="auth-card__subtitle"><%= auth_screen_subtitle %></p>
+            <% end %>
+          </div>
+        </header>
+
+        <div class="auth-card__body">
+          <%= render "shared/flash" %>
+          <%= yield %>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

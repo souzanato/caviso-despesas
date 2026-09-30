@@ -1,0 +1,32 @@
+<%# locals: (title: nil, extra_stylesheet: nil) %>
+<%#
+  <head> compartilhado entre o layout da aplicação e o layout de autenticação.
+  Fica num parcial para não duplicar favicon/CSRF/CSP/assets entre os dois.
+%>
+<meta charset="utf-8">
+<%# viewport-fit=cover: a barra de ação fixa usa env(safe-area-inset-bottom)
+    para não encostar na barra de gestos do sistema. %>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="application-name" content="<%= t("app.name") %>">
+<meta name="mobile-web-app-capable" content="yes">
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<%= yield :head %>
+
+<%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+<%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+<link rel="icon" href="/icon.png" type="image/png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.png">
+
+<%# "application" explícito, e não `:app`: no Propshaft o `:app` expande para
+    TODOS os CSS do app, o que faria o devise_auth.css ser baixado em todas as
+    páginas, inclusive nas que não são de autenticação. %>
+<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+<%# Só o layout de autenticação pede uma folha extra, e ela precisa vir depois
+    do Bootstrap para o tema escuro do card vencer o reboot. %>
+<%= stylesheet_link_tag extra_stylesheet, "data-turbo-track": "reload" if extra_stylesheet.present? %>
+<%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>

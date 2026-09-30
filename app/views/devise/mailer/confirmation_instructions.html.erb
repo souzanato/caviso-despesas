@@ -1,0 +1,11 @@
+<p style="margin:0 0 16px; font-size:17px; font-weight:600; color:#E8EAED;">
+  <%= t(".greeting", recipient: @email) %>
+</p>
+
+<p style="margin:0; color:#E8EAED;">
+  <%= t(".instruction") %>
+</p>
+
+<%= render "devise/mailer/button",
+           label: t(".action"),
+           url: confirmation_url(@resource, confirmation_token: @token) %>

@@ -1,0 +1,116 @@
+<%# locals: (ledgers:, selected:) %>
+<%#
+  [rubrica-picker] §7 — o conteúdo do seletor.
+
+  O MESMO markup serve às duas apresentações:
+  - CELULAR: folha sobreposta, ancorada abaixo da topbar (ver o bloco
+    `max-width: 991.98px` do CSS);
+  - DESKTOP: a coluna permanente.
+
+  Por isso busca e ação aparecem UMA vez só. No celular elas são o cabeçalho da
+  folha; no desktop o `order` as joga para o fim da coluna, que é onde a §7
+  manda ("busca fixa no fim"). Duplicar o markup para agradar às duas telas
+  seria a implementação paralela que a Regra 5 proíbe.
+
+  O `hidden` do painel vem do chamador (home/index.html.erb).
+%>
+<div class="ds-picker__head">
+  <div class="ds-picker__search">
+    <i class="bi bi-search ds-picker__search-icon" aria-hidden="true"></i>
+    <input type="search"
+           class="ds-field__input"
+           data-picker-target="search"
+           data-action="input->picker#filter keydown.enter->picker#submit"
+           inputmode="search"
+           enterkeyhint="search"
+           placeholder="<%= t("home.picker.search") %>"
+           aria-label="<%= t("home.picker.search") %>"
+           autocomplete="off">
+
+    <%#
+      Limpar. Aparece só com texto digitado, e vive DENTRO do campo — é o
+      gesto que o usuário já conhece de qualquer busca.
+
+      `hidden` na base: no desktop o campo mantém o ✕ nativo do navegador, e um
+      segundo botão seria dois controles para a mesma ação.
+    %>
+    <button type="button"
+            class="ds-picker__clear"
+            data-picker-target="clear"
+            data-action="click->picker#clear"
+            aria-label="<%= t("home.picker.clear") %>"
+            hidden>
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <%#
+    Uma ação, duas apresentações: ícone 40×40 no celular, botão largo no
+    desktop. O rótulo visível some no celular, e o nome acessível passa a vir do
+    `aria-label` — que repete o texto do desktop de propósito, para o leitor de
+    tela ouvir a mesma coisa nas duas telas.
+  %>
+  <button type="button"
+          class="ds-btn ds-btn--secondary ds-picker__new"
+          aria-label="<%= t("home.picker.new") %>"
+          data-action="click->modal#open"
+          data-modal-id-param="rubrica-modal">
+    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    <span class="ds-picker__new-label"><%= t("home.picker.new") %></span>
+  </button>
+</div>
+
+<div class="ds-picker__body" data-picker-target="body">
+  <ul class="ds-picker__list">
+    <% ledgers.each do |ledger| %>
+      <%#
+        O `data-picker-name` vive no <li>, e é ele que o filtro esconde — o
+        alvo é a linha inteira, não o link, senão sobraria o espaço da linha
+        filtrada.
+      %>
+      <li class="ds-picker__row"
+          data-picker-target="option"
+          data-picker-name="<%= ledger.name %>">
+        <%= link_to root_path(ledger: ledger.id),
+                    class: "ds-picker__item #{'is-active' if ledger.id == selected.id}",
+                    "aria-current": ("true" if ledger.id == selected.id),
+                    data: { action: "click->picker#close" } do %>
+          <%#
+            A marca da rubrica aberta. Fica oculta por padrão e só a linha ativa
+            a mostra (§7: a ativa se distingue por cor E por um indicador
+            estrutural — nunca só pelo tom).
+          %>
+          <i class="bi bi-check-lg ds-picker__check" aria-hidden="true"></i>
+          <span class="ds-picker__name"><%= ledger.name %></span>
+
+          <%# Uma informação só à direita: o que FALTA. É o número que o
+              usuário procura ao trocar de rubrica — o total não diz se ainda
+              há o que pagar. O span e o id vivem no parcial, para o replace
+              ser repetível. %>
+          <%= render "shared/picker_amount", ledger: ledger %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+
+  <%#
+    "Ver todas (N)". Fica logo depois do <ul> — e não como um <li> — porque não
+    é uma rubrica: é um controle da lista. Dentro do corpo, ela rola junto com
+    as linhas, que é onde faz sentido: ela fica ABAIXO das recentes.
+
+    O rótulo já traz o total para o usuário saber quantas há antes de expandir.
+  %>
+  <button type="button"
+          class="ds-picker__more"
+          data-picker-target="more"
+          data-action="click->picker#showAll"
+          hidden>
+    <%= t("home.picker.see_all", count: ledgers.size) %>
+  </button>
+
+  <%# `role="status"` anuncia a lista vazia quando o filtro não acha nada —
+      sem isso o resultado de digitar é silêncio, e a tela parece travada. %>
+  <p class="ds-picker__empty" data-picker-target="empty" role="status" hidden>
+    <%= t("home.picker.no_results") %>
+  </p>
+</div>

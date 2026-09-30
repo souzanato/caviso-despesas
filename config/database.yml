@@ -1,0 +1,73 @@
+# PostgreSQL. Versions 9.5 and up are supported.
+#
+# Configure Using Gemfile
+# gem "pg"
+#
+# Cada ambiente lê a conexão de variáveis de ambiente com prefixo próprio
+# (DEV_, TEST_, PRODUCTION_). Em development/test elas vêm do arquivo .env
+# (gem dotenv); em production, do deploy.
+#
+# Uso ENV[...] e não ENV.fetch porque o Rails renderiza este arquivo inteiro
+# em qualquer boot: um ENV.fetch("PRODUCTION_ADAPTER") literal exigiria as
+# variáveis dos três ambientes para subir em development. Variável ausente
+# chega como nil e o erro aparece na conexão.
+#
+default: &default
+  # For details on connection pooling, see Rails configuration guide
+  # https://guides.rubyonrails.org/configuring.html#database-pooling
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  adapter: <%= ENV["DEV_ADAPTER"] %>
+  database: <%= ENV["DEV_DATABASE"] %>
+  host: <%= ENV["DEV_HOST"] %>
+  username: <%= ENV["DEV_USERNAME"] %>
+  password: <%= ENV["DEV_PASSWORD"] %>
+  encoding: <%= ENV["DEV_ENCODING"] %>
+  port: <%= ENV["DEV_PORT"] %>
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  adapter: <%= ENV["TEST_ADAPTER"] %>
+  database: <%= ENV["TEST_DATABASE"] %>
+  host: <%= ENV["TEST_HOST"] %>
+  username: <%= ENV["TEST_USERNAME"] %>
+  password: <%= ENV["TEST_PASSWORD"] %>
+  encoding: <%= ENV["TEST_ENCODING"] %>
+  port: <%= ENV["TEST_PORT"] %>
+
+# As with config/credentials.yml, you never want to store sensitive information,
+# like your database password, in your source code. If your source code is
+# ever seen by anyone, they now have access to your database.
+#
+# Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
+# for a full overview on how database connection configuration can be specified.
+#
+# cache/queue/cable reaproveitam host, porta, credenciais e encoding do banco
+# primário, variando só o nome (sufixo _cache, _queue, _cable).
+production:
+  primary: &primary_production
+    <<: *default
+    adapter: <%= ENV["PRODUCTION_ADAPTER"] %>
+    database: <%= ENV["PRODUCTION_DATABASE"] %>
+    host: <%= ENV["PRODUCTION_HOST"] %>
+    username: <%= ENV["PRODUCTION_USERNAME"] %>
+    password: <%= ENV["PRODUCTION_PASSWORD"] %>
+    encoding: <%= ENV["PRODUCTION_ENCODING"] %>
+    port: <%= ENV["PRODUCTION_PORT"] %>
+  cache:
+    <<: *primary_production
+    database: <%= "#{ENV["PRODUCTION_DATABASE"]}_cache" %>
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: <%= "#{ENV["PRODUCTION_DATABASE"]}_queue" %>
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: <%= "#{ENV["PRODUCTION_DATABASE"]}_cable" %>
+    migrations_paths: db/cable_migrate

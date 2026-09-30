@@ -1,0 +1,46 @@
+<%#
+  Shell da aplicação: topbar (1), sidebar (2), conteúdo (3) e rodapé (4).
+
+  O layout só monta a grade e delega cada área para um parcial — a topbar, a
+  sidebar, o menu do usuário e o rodapé têm markup próprio.
+
+  As telas de autenticação NÃO usam este layout: elas usam
+  app/views/layouts/devise.html.erb (ver app/controllers/users/).
+%>
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= content_for(:title).presence || t("app.name") %></title>
+    <%= render "layouts/head" %>
+  </head>
+
+  <body>
+    <%#
+      data-controller="sidebar" fica na raiz do shell porque o estado que ele
+      controla (retração) é uma classe aqui que muda a coluna do grid.
+    %>
+    <%#
+      `is-sidebar-collapsed` já vem do servidor: o padrão é a sidebar encolhida,
+      e renderizar a classe aqui evita a piscada de "abre e fecha" no primeiro
+      paint. O Stimulus só reconcilia se o usuário tiver expandido antes.
+    %>
+    <div class="app is-sidebar-collapsed" data-controller="sidebar">
+      <%= render "layouts/topbar" %>
+      <%= render "layouts/sidebar" %>
+
+      <main class="app-main">
+        <%# O flash vive aqui, acima do conteúdo. Antes não existia região de
+            flash na área autenticada, então os avisos de redirect ficavam
+            pendentes na sessão até a próxima tela de autenticação. %>
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </main>
+
+      <%= render "layouts/footer" %>
+    </div>
+
+    <%# Fora do .app para o posicionamento fixo não depender do grid. O Turbo
+        Stream troca só o conteúdo interno. %>
+    <div id="snackbar"><%= render "shared/snackbar" %></div>
+  </body>
+</html>

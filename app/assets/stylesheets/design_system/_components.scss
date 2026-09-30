@@ -1,0 +1,2238 @@
+// =============================================================================
+// Componentes do Design System — compartilhados entre os dois contextos
+// =============================================================================
+// Estes são os componentes definidos no DESIGN-SYSTEM.md que NÃO pertencem a um
+// contexto visual específico:
+//
+//   [button]        §5   -> .ds-btn
+//   [input-text]    §5   -> .ds-field
+//   [error-message] §5   -> .ds-alert
+//
+// Eles nasceram dentro do bundle de autenticação (`.auth-btn`, `.auth-field__input`,
+// `.auth-alert`) porque as telas de Devise foram as primeiras a existir. Como os
+// tokens são escopados por contexto, o CSS já era agnóstico de tema — o prefixo
+// `.auth-` era a única coisa prendendo o componente a um contexto só.
+//
+// Promovê-los aqui evita a alternativa, que seria criar `.app-btn` e companhia
+// e passar a ter duas implementações concorrentes da mesma responsabilidade
+// visual (Rule 5). Um componente, dois contextos, valores vindos dos tokens.
+//
+// Entra nos DOIS bundles: `application.css` (área autenticada) e
+// `devise_auth.css` (autenticação).
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// [button] §5
+// -----------------------------------------------------------------------------
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  // 48px, e não os 44px mínimos do §5: este era o valor que os botões de
+  // autenticação já tinham, e promovê-los a componente compartilhado não devia
+  // mexer no que já estava na tela. 48 >= 44, então segue dentro da regra.
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.ds-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+// O CTA principal de formulário ocupa a largura toda; os botões de ação em
+// linha (lista, barra de ações) não. Por isso a largura é um modificador e não
+// parte da base.
+.ds-btn--block {
+  width: 100%;
+}
+
+// Ações em linha (linha de lista, barra de ações). Continua respeitando o alvo
+// de toque mínimo — "compact" encolhe a caixa, nunca abaixo de 44px (§5).
+.ds-btn--compact {
+  min-height: var(--tap-target);
+  padding: 0 var(--space-3);
+  font-size: 0.875rem;
+}
+
+// --- Variantes ---------------------------------------------------------------
+
+.ds-btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.ds-btn--primary:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary);
+}
+
+.ds-btn--primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+// Ação de menor prioridade: cancelar, voltar, editar. Fundo discreto e borda
+// sutil — não compete com o `primary` da mesma tela (§5).
+.ds-btn--secondary {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.ds-btn--secondary:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+// Só para ação destrutiva real. O TEXTO usa `--color-danger-text`, não
+// `--color-danger`: a cor de preenchimento não atinge 4,5:1 sobre superfície
+// clara. No tema escuro os dois tokens têm o mesmo valor, então a autenticação
+// não muda.
+.ds-btn--danger {
+  background: transparent;
+  color: var(--color-danger-text);
+  border-color: var(--color-danger-border);
+}
+
+.ds-btn--danger:hover {
+  background: var(--color-danger-bg);
+}
+
+// --- Variantes do contexto de autenticação -----------------------------------
+// O §5 não descreve estas duas porque elas só fazem sentido no login, mas são
+// variantes do MESMO componente — não um segundo botão.
+
+.ds-btn--oauth {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.ds-btn--oauth:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-input);
+}
+
+// WebAuthn ainda não existe no projeto; o estilo fica pronto para quando
+// existir. Ver o comentário em app/views/devise/sessions/new.html.erb.
+.ds-btn--passkey {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.ds-btn--passkey:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
+}
+
+// --- Estado de carregamento --------------------------------------------------
+// Acionado por JS/Hotwire: button.classList.add("is-loading")
+.ds-btn.is-loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.ds-btn.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-on-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: ds-spin 700ms linear infinite;
+}
+
+@keyframes ds-spin {
+  to { transform: rotate(360deg); }
+}
+
+// -----------------------------------------------------------------------------
+// [input-text] §5
+// -----------------------------------------------------------------------------
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ds-field__label {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--color-text-muted);
+}
+
+.ds-field__input {
+  width: 100%;
+  min-height: var(--tap-target);
+  padding: 0 var(--space-3);
+  // 16px evita o zoom automático do iOS ao focar o campo.
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+.ds-field__input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.ds-field__input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.ds-field__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+// Formulário: pilha vertical de campos. É o contêiner que dá ritmo ao form,
+// usado tanto no card de autenticação quanto nas telas de cadastro.
+.ds-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// -----------------------------------------------------------------------------
+// [checkbox-toggle] §5
+// -----------------------------------------------------------------------------
+// Promovido do bundle de autenticacao junto com [button] e [input-text]:
+// o mesmo componente serve a area autenticada. O CSS ja era agnostico de
+// tema, porque consome tokens de contexto.
+.ds-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+}
+
+.ds-choice__input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+.ds-choice__label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+// -----------------------------------------------------------------------------
+// [error-message] §5
+// -----------------------------------------------------------------------------
+.ds-alert {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.ds-alert--error {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+}
+
+.ds-alert--notice {
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
+}
+
+.ds-alert__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.ds-alert--error .ds-alert__icon { color: var(--color-danger-text); }
+.ds-alert--notice .ds-alert__icon { color: var(--color-success-text); }
+
+.ds-alert__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ds-alert__title {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ds-alert--error .ds-alert__title { color: var(--color-danger-text); }
+.ds-alert--notice .ds-alert__title { color: var(--color-success-text); }
+
+.ds-alert__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ds-alert__item {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+// -----------------------------------------------------------------------------
+// [page-header] §6
+// -----------------------------------------------------------------------------
+.ds-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.ds-page-header__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ds-page-header__title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+
+.ds-page-header__description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+// Mobile: título e ação empilham. A ação continua imediatamente abaixo do
+// título, e não numa barra inferior — a tela não tem ação flutuante.
+@media (max-width: 575.98px) {
+  .ds-page-header {
+    align-items: stretch;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// [empty-state] §6
+// -----------------------------------------------------------------------------
+.ds-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.ds-empty-state__icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-text-disabled);
+}
+
+.ds-empty-state__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ds-empty-state__text {
+  margin: 0;
+  max-width: 36ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+// -----------------------------------------------------------------------------
+// [category-badge] §7
+// -----------------------------------------------------------------------------
+// A tinta e o texto vêm de um dos dez tons da subpaleta. O sufixo do tom é
+// escolhido por `Category#color_tone` — nunca na view.
+.ds-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ds-category-badge__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}
+
+// Os nomes vão ENTRE ASPAS de propósito: sem aspas, `mint`, `violet`, `pink`,
+// `fuchsia`, `teal` e `sky` são nomes de cor do CSS, e o Sass os trata como
+// valor de cor em vez de string — o que gera aviso a cada build e deixa o
+// resultado dependente de como o Sass converte o nome de volta.
+@each $tom in ("mint", "teal", "cyan", "sky", "blue", "indigo", "violet", "fuchsia", "pink", "slate") {
+  .ds-category-badge--#{$tom} {
+    background-color: var(--color-cat-#{$tom}-bg);
+    color: var(--color-cat-#{$tom}-text);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Lista de categorias — estrutura de [categories-index-screen] §10
+// -----------------------------------------------------------------------------
+// Não é um componente reutilizável: é a forma que esta tela tem. Por isso
+// carrega o nome da tela, e não um nome genérico de "lista".
+.ds-category-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden; // mantém as bordas da lista recortando as linhas
+}
+
+.ds-category-list__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.ds-category-list__row + .ds-category-list__row {
+  border-top: 1px solid var(--color-border);
+}
+
+.ds-category-list__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+// `button_to` gera um <form> em volta do botão. Sem isto ele vira um item de
+// flex a mais e desalinha a linha.
+.ds-inline-form {
+  margin: 0;
+  display: inline-flex;
+}
+
+// -----------------------------------------------------------------------------
+// Cartão de formulário — [category-form-screen] §10
+// -----------------------------------------------------------------------------
+// Superfície branca sobre o fundo off-white. O `max-width` existe para que o
+// campo não se estique pela largura inteira da área de conteúdo no desktop.
+.ds-form-card {
+  max-width: 32rem;
+  padding: var(--space-6);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+// O "cancelar" é um <p> com link, irmão do <form> dentro do card. O padding do
+// card já dá o respiro; aqui só tiramos a margem de parágrafo do navegador para
+// o espaçamento não depender do user-agent.
+.ds-form-card > p {
+  margin: var(--space-4) 0 0;
+}
+
+// -----------------------------------------------------------------------------
+// [ledger-summary] §7
+// -----------------------------------------------------------------------------
+// Faixa de apoio, não card: sem superfície própria, sem sombra, separada do
+// conteúdo só pelo espaçamento. A lista de despesas é o conteúdo da tela.
+// Identificação da rubrica + resumo ficam presos abaixo da topbar: são a
+// referência de "que rubrica é esta e quanto falta" enquanto se rola a lista.
+//
+// Geometria: o <main> tem padding, então o topo da caixa de conteúdo fica
+// `--ds-main-pad` abaixo da topbar, e o sticky NÃO sobe além disso — sobraria
+// uma faixa por onde as linhas passariam atrás do resumo. O `::before` abaixo
+// cobre exatamente essa faixa.
+//
+// Ele NÃO usa `margin-block-start` negativo: isso puxava o bloco para cima e
+// ele passava por cima do flash, que fica logo acima, dentro do mesmo <main>.
+.ds-ledger-pinned {
+  --ds-main-pad: var(--space-4);
+
+  position: sticky;
+  inset-block-start: var(--app-topbar-h);
+  z-index: 10; // acima das linhas (1) e abaixo da topbar (1030)
+  // Sangra só nas laterais, para cobrir a largura toda da área de conteúdo.
+  margin-inline: calc(var(--ds-main-pad) * -1);
+  padding-inline: var(--ds-main-pad);
+  background-color: var(--color-bg);
+}
+
+@media (min-width: 992px) {
+  .ds-ledger-pinned {
+    --ds-main-pad: var(--space-6);
+  }
+}
+
+.ds-ledger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+// Celular: o seletor acima vira só "Rubricas", e o nome da rubrica aparece
+// AQUI, junto das ações.
+//
+// A alternativa — esconder este título — deixava a linha de ações órfã, com os
+// dois ícones flutuando num vazio. Agora cada linha diz uma coisa: o seletor
+// diz que ali se troca de rubrica, e esta diz qual está aberta.
+@media (max-width: 991.98px) {
+  .ds-ledger-header {
+    margin-bottom: var(--space-2);
+  }
+
+  .ds-ledger-header__title {
+    font-size: 1.25rem;
+  }
+}
+
+.ds-ledger-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.ds-ledger-header__title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+
+.ds-ledger-summary {
+  margin-bottom: var(--space-4);
+}
+
+// Resumo compacto: o bloco inteiro (rótulos + números + barra) cabe em ~60px.
+// É moldura — a lista de despesas é o conteúdo, e cada pixel aqui é uma
+// despesa a menos visível na dobra.
+.ds-ledger-summary__values {
+  display: flex;
+  // Espaçamento e corpo menores no celular: três colunas de moeda em 375px dão
+  // ~103px cada, e "R$ 13.379,24" a 16px não cabe — a coluna "Falta" quebrava
+  // em duas linhas, com o "R$" sozinho em cima.
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+}
+
+@media (min-width: 992px) {
+  .ds-ledger-summary__values {
+    gap: var(--space-4);
+  }
+}
+
+.ds-ledger-summary__cell {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+
+.ds-ledger-summary__label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.ds-ledger-summary__number {
+  margin: 0;
+  // Números tabulares: os valores não podem "dançar" quando mudam de dígito.
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9375rem;
+  // Nunca quebrar dentro do valor: "R$" numa linha e o número na outra lê como
+  // dois dados, não como um valor só.
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+@media (min-width: 992px) {
+  .ds-ledger-summary__number {
+    font-size: 1rem;
+  }
+}
+
+// "Falta" é o número que o usuário procura. Ganha peso relativo — não
+// hierarquia de card.
+.ds-ledger-summary__cell--remaining .ds-ledger-summary__number {
+  font-weight: 650;
+}
+
+// -----------------------------------------------------------------------------
+// [progress-bar] §7
+// -----------------------------------------------------------------------------
+.ds-progress {
+  block-size: 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.ds-progress__fill {
+  block-size: 100%;
+  background-color: var(--color-primary);
+  transition: inline-size var(--transition-base);
+}
+
+// -----------------------------------------------------------------------------
+// Barra de ordenação — [expense-list] §7
+// -----------------------------------------------------------------------------
+// Faixa acima da lista: contagem à esquerda, ordenação à direita. Substitui a
+// pílula que ocupava uma linha inteira para dizer uma coisa só.
+.ds-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-block-size: 40px;
+  margin-block: var(--space-2);
+}
+
+.ds-list-head__count {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.ds-list-head__select {
+  min-block-size: 36px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.ds-list-head__select:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
+// Select nativo de propósito: são três opções fixas, e o controle do sistema
+// é melhor no celular do que qualquer dropdown nosso. Recebe a aparência do
+// [input-text] sem herdar altura de campo de formulário.
+.ds-sort__select {
+  min-height: var(--tap-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.ds-sort__select:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
+// Coluna da alça reservada mesmo quando não há alça, para as linhas ficarem
+// alinhadas ao trocar de modo de ordenação.
+.ds-expense-row__grip-placeholder {
+  grid-area: grip;
+  inline-size: var(--tap-target);
+  block-size: var(--tap-target);
+}
+
+// -----------------------------------------------------------------------------
+// Utilitário de acessibilidade
+// -----------------------------------------------------------------------------
+// Some da tela, permanece na árvore de acessibilidade. É o oposto de
+// `display: none`, que removeria o conteúdo também de quem lê a página — o que
+// é errado para uma região viva, cujo texto precisa ser anunciado.
+.ds-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// -----------------------------------------------------------------------------
+// [expense-list] / [expense-row] §7
+// -----------------------------------------------------------------------------
+// No celular a lista é LARGURA TOTAL: sem cartão, sem raio, sem borda lateral.
+// O cartão com cantos arredondados e margens de 20px comia ~40px de largura
+// útil — exatamente o que faltava para o nome da categoria não ser cortado.
+// O sangramento negativo atravessa o padding do <main>.
+.ds-expense-list {
+  margin: 0 calc(var(--space-4) * -1);
+  padding: 0;
+  list-style: none;
+  background-color: var(--color-surface);
+  border-block: 1px solid var(--color-border);
+}
+
+@media (min-width: 992px) {
+  .ds-expense-list {
+    margin-inline: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden; // as bordas da lista recortam as linhas
+  }
+}
+
+// Celular: verificação numa coluna à esquerda, e duas faixas à direita —
+// nome + valor em cima, categoria embaixo ocupando a largura toda.
+//
+// A largura é o que manda aqui: alça e ✕ saíram da linha no celular (a alça
+// só no modo reordenar; o ✕ foi para o dialog de edição), e o nome da categoria
+// passou a ter a faixa inteira em vez de disputar coluna com o valor.
+.ds-expense-row {
+  display: grid;
+  align-items: center;
+  column-gap: var(--space-1);
+  row-gap: 2px;
+  min-block-size: 64px;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-1);
+  grid-template-columns: var(--tap-target) minmax(0, 1fr) auto;
+  grid-template-areas:
+    "check name amount"
+    "check meta meta";
+}
+
+// A alça só existe no modo reordenar (classe is-reordering em #expense-list).
+//
+// O seletor é descendente de propósito: `.app-icon-btn` vive no app_shell.scss,
+// que é importado DEPOIS desta folha, e com a mesma especificidade (0,1,0) ele
+// venceria por ordem — o ✕ e a alça continuavam aparecendo no celular.
+.ds-expense-row .ds-expense-row__grip,
+.ds-expense-row .ds-expense-row__grip-placeholder {
+  display: none;
+}
+
+.is-reordering .ds-expense-row__grip {
+  display: flex;
+}
+
+.is-reordering .ds-expense-row {
+  grid-template-columns: 2rem var(--tap-target) minmax(0, 1fr) auto;
+  grid-template-areas:
+    "grip check name amount"
+    "grip check meta meta";
+}
+
+// O ✕ sai da linha no celular (§7): ele ficava colado no valor e disputava a
+// largura com o nome. Excluir passa a viver dentro do dialog de edição.
+.ds-expense-row .ds-expense-row__remove {
+  display: none;
+}
+
+// Único ponto de arrasto da linha. 44px como todo alvo de toque, mesmo com o
+// ícone bem menor — a área é que importa.
+.ds-expense-row__grip {
+  grid-area: grip;
+  // Sem isto o navegador interpreta o gesto como rolagem da pagina e o
+  // arrasto nunca comeca num aparelho de toque real.
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--tap-target);
+  block-size: var(--tap-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-disabled);
+  font-size: 1.125rem;
+  cursor: grab;
+  touch-action: none; // o gesto é de arrasto, não de rolagem da página
+}
+
+.ds-expense-row__grip:active {
+  cursor: grabbing;
+}
+
+.ds-expense-row__grip:hover {
+  color: var(--color-text-muted);
+}
+
+.ds-expense-row--ghost {
+  opacity: 0.35;
+}
+
+.ds-expense-row--drag {
+  background-color: var(--color-surface);
+  box-shadow: var(--elevation-2);
+}
+
+.ds-expense-row + .ds-expense-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.ds-expense-row__check {
+  grid-area: check;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // Alvo próprio de 44px: o checkbox em si é pequeno, a área de toque não.
+  inline-size: var(--tap-target);
+  block-size: var(--tap-target);
+  margin: 0;
+}
+
+// Caixa desenhada à mão: o checkbox nativo não aceita raio nem controle de
+// borda, e o alvo de toque (44px) fica no form que o envolve.
+.ds-expense-row__checkbox {
+  appearance: none;
+  inline-size: 24px;
+  block-size: 24px;
+  margin: 0;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+
+.ds-expense-row__checkbox:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  // O traço é branco e vive numa data URI (não aceita custom property).
+  // Sobre o verde da marca dá 3,05:1 — acima do mínimo de 3:1 para elemento
+  // gráfico, que é o caso de um ícone de marcação.
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+}
+
+// É um <button>, não um <span>: o corpo da linha abre a edição, e um alvo
+// clicável precisa ser alcançável por teclado e anunciado como ação. O reset
+// devolve a aparência de texto.
+.ds-expense-row__name {
+  grid-area: name;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-text);
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ds-expense-row__name:hover {
+  text-decoration: underline;
+}
+
+.ds-expense-row__meta {
+  grid-area: meta;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// A badge não encolhe sozinha: `white-space: nowrap` a mantém no tamanho do
+// texto, e sem um teto ela invade a coluna vizinha — era o chip por cima do
+// valor. Aqui ela é limitada ao espaço da célula, e o rótulo trunca.
+.ds-expense-row__meta .ds-category-badge {
+  max-inline-size: 100%;
+}
+
+.ds-category-badge__label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-expense-row__amount {
+  grid-area: amount;
+  justify-self: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+// No desktop a faixa é única, então o valor volta para a mesma linha do nome.
+@media (min-width: 992px) {
+  .ds-expense-row__amount {
+    align-self: center;
+  }
+}
+
+// Pago continua legível: some o destaque, não a informação. E a linha NÃO
+// reordena — linha que pula sob o dedo faz errar o toque seguinte.
+.ds-expense-row.is-paid .ds-expense-row__name {
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 992px) {
+  // Desktop: faixa única, e a alça e o ✕ voltam para a linha. Mesma ordem do
+  // §7 — alça, check, nome, chip, valor, remover.
+  .ds-expense-row {
+    column-gap: var(--space-3);
+    row-gap: 0;
+    padding: var(--space-3) var(--space-4);
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+    grid-template-areas: "grip check name meta amount remove";
+  }
+
+  .ds-expense-row .ds-expense-row__grip,
+  .ds-expense-row .ds-expense-row__grip-placeholder {
+    display: flex;
+  }
+
+  .ds-expense-row .ds-expense-row__remove {
+    display: inline-flex;
+  }
+}
+
+.ds-expense-row__remove {
+  grid-area: remove;
+  font-size: 1rem;
+}
+
+// -----------------------------------------------------------------------------
+// [modal] §8
+// -----------------------------------------------------------------------------
+// Uma apresentação responsiva, não duas telas: folha na base no celular,
+// diálogo centralizado no desktop. O <dialog> nativo já dá foco preso, Escape e
+// backdrop — aqui só se decide a FORMA.
+.ds-modal {
+  inline-size: min(26rem, 100%);
+  max-block-size: 90dvh;
+  padding: var(--space-6);
+  overflow-y: auto;
+  background-color: var(--color-surface);
+  border: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-2);
+  color: var(--color-text);
+}
+
+.ds-modal::backdrop {
+  background-color: rgba(17, 20, 24, 0.45);
+}
+
+// Celular: encosta na base, na zona do polegar.
+@media (max-width: 991.98px) {
+  .ds-modal {
+    inline-size: 100%;
+    margin: auto 0 0;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+}
+
+.ds-modal__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  color: var(--color-text);
+}
+
+// Explicação da consequência da ação destrutiva. O §8 pede consequência
+// explícita, e é aqui que ela aparece.
+.ds-modal__body {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.ds-modal__actions {
+  display: flex;
+  flex-direction: column-reverse; // a ação principal fica mais perto do polegar
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+// -----------------------------------------------------------------------------
+// Ação "Nova despesa"
+// -----------------------------------------------------------------------------
+// Barra de ação fixa na base: com 39 despesas, "Nova despesa" ficava no fim da
+// lista e exigia rolar a tela inteira para cadastrar uma despesa.
+.ds-expense-actions {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 1025; // acima do rodapé (1020) e abaixo da topbar (1030)
+  margin: 0;
+  padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+  background-color: var(--color-surface);
+  border-block-start: 1px solid var(--color-border);
+}
+
+// A lista reserva a altura da barra, para a última despesa não ficar atrás.
+.ds-home__detail {
+  padding-block-end: calc(64px + var(--space-4));
+}
+
+@media (min-width: 992px) {
+  .ds-expense-actions {
+    position: static;
+    margin-top: var(--space-6);
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .ds-home__detail {
+    padding-block-end: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// [rubrica-picker] §7
+// -----------------------------------------------------------------------------
+// Mesma informação em duas apresentações: painel no celular, coluna no desktop.
+// Lista simples com borda de 1px — sem cards, sem sombra.
+.ds-home {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .ds-home {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// [rubrica-picker] §7 — apresentação de DESKTOP (coluna permanente)
+// -----------------------------------------------------------------------------
+// Tudo o que é exclusivo do desktop fica aqui, e a apresentação de celular vive
+// no bloco `max-width: 991.98px` lá embaixo. O markup é UM SÓ: quem decide qual
+// das duas está valendo é a largura.
+
+// `position: sticky` mantém a lista parada enquanto a coluna de detalhe ao lado
+// rola — sem ela, trocar de rubrica numa lista longa obrigaria a subir a página
+// até o topo. (As demais medidas da coluna estão no bloco do desktop, adiante.)
+
+// -----------------------------------------------------------------------------
+// [snackbar] §8
+// -----------------------------------------------------------------------------
+// Fixa acima do rodapé do shell. No celular sobe mais, para não cobrir o botão
+// "Nova despesa", que fica preso na base — o §8 proíbe o snackbar tapar a ação
+// principal.
+.ds-snackbar {
+  position: fixed;
+  inset-inline: var(--space-4);
+  inset-block-end: calc(var(--app-footer-h) + var(--space-4));
+  z-index: 1040; // acima do rodapé (1020) e da topbar (1030)
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  box-shadow: var(--elevation-2);
+}
+
+@media (max-width: 991.98px) {
+  .ds-snackbar {
+    inset-block-end: calc(var(--app-footer-h) + var(--space-16));
+  }
+}
+
+// Sem conteúdo (a maioria do tempo), não ocupa espaço nem captura toque.
+.ds-snackbar:empty {
+  display: none;
+}
+
+.ds-snackbar__message {
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+// A ação herda a cor do snackbar e se distingue pelo sublinhado — sobre fundo
+// escuro, o verde de texto da marca não tem contraste suficiente.
+.ds-snackbar__action {
+  flex: 0 0 auto;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+// -----------------------------------------------------------------------------
+// [combobox] §5
+// -----------------------------------------------------------------------------
+.ds-combobox {
+  max-block-size: 15rem;
+  margin: var(--space-1) 0 0;
+  padding: var(--space-1);
+  overflow-y: auto;
+  list-style: none;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+}
+
+.ds-combobox__option {
+  display: block;
+  inline-size: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.ds-combobox__option:hover,
+.ds-combobox__option:focus-visible {
+  background-color: var(--color-surface-hover);
+}
+
+// A opção de criar usa a cor de TEXTO da marca: sobre superfície clara, a cor
+// de preenchimento não atinge 4,5:1.
+.ds-combobox__option--create {
+  color: var(--color-primary-text);
+  font-weight: 600;
+}
+
+// -----------------------------------------------------------------------------
+// [input-currency] §5
+// -----------------------------------------------------------------------------
+// Números tabulares e alinhamento à direita: o valor é lido como número, e a
+// casa dos centavos não pode "andar" enquanto se digita.
+.ds-field__input--money {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+// -----------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  .ds-btn,
+  .ds-field__input {
+    animation: none;
+    transition: none;
+  }
+
+  .ds-btn:hover {
+    transform: none;
+  }
+}
+
+// =============================================================================
+// Celular — barra de título, painel de rubricas, menu e bottom sheet
+// =============================================================================
+// Regras desta seção são escritas como seletores DESCENDENTES de propósito.
+// `app_shell.scss` é importado DEPOIS desta folha, e com a mesma especificidade
+// (0,1,0) ele vence por ordem — foi o que manteve o ✕ e a alça visíveis no
+// celular depois de eu marcá-los `display: none`.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Barra de título: o nome da rubrica É o botão do seletor
+// -----------------------------------------------------------------------------
+.ds-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-block-size: 48px;
+}
+
+.ds-titlebar__heading {
+  min-inline-size: 0;
+  margin: 0;
+  font: inherit;
+}
+
+.ds-titlebar__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: var(--tap-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+}
+
+.ds-titlebar__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 150ms, e não os 200ms da base: o chevron é a resposta imediata ao toque que
+// abriu o painel, e nessa distância o atraso aparecia como hesitação.
+.ds-titlebar__chevron {
+  flex: 0 0 auto;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.ds-titlebar__toggle[aria-expanded="true"] .ds-titlebar__chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-titlebar__chevron {
+    transition: none;
+  }
+}
+
+// O anel de foco é para quem navega por teclado.
+//
+// Sem o `:focus`, o navegador desenhava o anel azul grosso do sistema também no
+// toque e no clique — o título ficava marcado DEPOIS de abrir o painel, e o
+// usuário via um contorno que não correspondia a nada na tela.
+.ds-titlebar__toggle:focus {
+  outline: none;
+}
+
+.ds-titlebar__toggle:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// [rubrica-picker] §7 — base compartilhada
+// -----------------------------------------------------------------------------
+// O markup é ÚNICO e serve às duas apresentações: a folha sobreposta do celular
+// (bloco `max-width: 991.98px`, logo abaixo) e a coluna permanente do desktop
+// (bloco `min-width: 992px`, adiante). Aqui fica só o que as duas usam, e cada
+// apresentação define o que é só dela — sem empilhar override por cima da outra.
+.ds-picker__panel {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+}
+
+.ds-picker__panel[hidden] {
+  display: none;
+}
+
+// Quem rola é o corpo: no celular a lista dentro da folha, no desktop a coluna.
+.ds-picker__body {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ds-picker__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ds-picker__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.ds-picker__item:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+// A rubrica aberta. O §7 exige cor E um indicador estrutural — nunca só o tom.
+// Quem desenha o indicador é cada apresentação: barrinha verde no desktop, um
+// check ao lado do nome no celular.
+.ds-picker__item.is-active {
+  background-color: var(--color-primary-bg);
+  color: var(--color-primary-text);
+  font-weight: 650;
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+// `flex: 1 1 auto` para o nome absorver a sobra e empurrar o valor para a
+// direita. Sem ele, a linha ativa — que tem TRÊS filhos (check, nome, valor) e
+// `justify-content: space-between` — centralizava o nome, e a lista ficava com
+// os nomes desalinhados entre si.
+.ds-picker__name {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-picker__amount {
+  flex: 0 0 auto;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+// "quitada" / "sem despesas": informação, não valor. Cinza claro e sem número.
+.ds-picker__hint {
+  color: var(--color-text-disabled);
+}
+
+// Busca e ação ficam FORA do corpo rolável nas duas telas: no celular são o
+// cabeçalho da folha, no desktop o rodapé da coluna (§7 — "busca fixa na base"
+// no celular, "busca fixa no fim" no desktop). Dentro do contêiner que rola,
+// sumiriam de vista na primeira rolagem — quando mais servem.
+.ds-picker__search {
+  flex: 0 0 auto;
+  position: relative;
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.ds-picker__search-icon {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: var(--space-3);
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  // O ícone é enfeite: o clique tem de atravessá-lo e chegar no campo.
+  pointer-events: none;
+}
+
+// O campo É um [input-text] (§5) — só o recuo da esquerda muda, para o ícone
+// não ficar por cima do que se digita.
+.ds-picker__search .ds-field__input {
+  padding-inline-start: calc(var(--space-3) + 1.25rem);
+}
+
+// A linha da lista. O `hidden` é reforçado AQUI: filtrar é esconder o que não
+// casa, e o atributo — que vale pela folha do navegador — perderia para
+// qualquer `display` declarado por estas regras.
+.ds-picker__row[hidden] {
+  display: none;
+}
+
+// Nenhuma rubrica encontrada. Diz o que houve e não deixa a área em branco.
+.ds-picker__empty {
+  margin: 0;
+  padding: var(--space-4);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+// --- Peças de UMA apresentação só --------------------------------------------
+// O `display: none` é da base de propósito: assim o desktop nunca precisa saber
+// que estas peças existem, e o celular as liga no bloco dele.
+.ds-picker__check,
+.ds-picker__settled,
+.ds-picker__clear {
+  display: none;
+}
+
+// -----------------------------------------------------------------------------
+// [rubrica-picker] §7 — apresentação de CELULAR (<= 991.98px)
+// -----------------------------------------------------------------------------
+// O painel é uma FOLHA SOBREPOSTA, ancorada logo abaixo da topbar. Antes ele
+// abria NO LUGAR e empurrava o resumo e a lista, deixando três blocos
+// disputando a mesma tela; sobrepor resolve sem esconder o que se quer comparar,
+// porque o backdrop é que cede, não o conteúdo.
+@media (max-width: 991.98px) {
+  // --- Backdrop ---------------------------------------------------------------
+  // Irmão do painel, nunca filho: dentro dele o `overflow: hidden` da folha o
+  // recortaria. Cobre a tela inteira, topbar incluída — a folha é modal, e uma
+  // topbar viva por cima seria um convite a um toque que não leva a nada.
+  //
+  // Acima da topbar e abaixo do drawer do Bootstrap (1045), que é o único que
+  // ainda precisa ficar por cima.
+  .ds-picker__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--app-z-topbar) + 1);
+    background-color: rgba(17, 20, 24, 0.4);
+  }
+
+  .ds-picker__backdrop[hidden] {
+    display: none;
+  }
+
+  // O conteúdo atrás não rola enquanto a folha está aberta. A classe vive no
+  // <body> porque é ele quem rola; o JS a remove ao fechar E ao navegar, senão
+  // o Turbo levaria o estado no cache da página e a tela seguinte nasceria
+  // travada.
+  body.ds-sheet-open {
+    overflow: hidden;
+  }
+
+  // --- Folha ------------------------------------------------------------------
+  .ds-picker__panel {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-start: var(--app-topbar-h);
+    z-index: calc(var(--app-z-topbar) + 2);
+    // min(70dvh, 28rem): o teto do §7. O `vh` acompanha a barra de endereço do
+    // navegador móvel; o `rem` impede que a folha vire a tela toda no celular
+    // grande, onde 70% seria exagerado para um seletor.
+    max-block-size: min(70dvh, 28rem);
+    overflow: hidden;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    box-shadow: var(--elevation-2);
+    // A sangria lateral existia para o painel empurrado cobrir o padding do
+    // <main>. Como folha, ela encosta nas bordas da tela.
+    margin-inline: 0;
+    border-block: 0;
+  }
+
+  .ds-picker__panel[hidden] {
+    display: none;
+  }
+
+  // --- Cabeçalho: uma linha só ------------------------------------------------
+  .ds-picker__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 0 0 auto;
+    min-block-size: 48px;
+    padding-inline: var(--space-4);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  // A busca ocupa toda a sobra da linha, menos os 40px do "+". Sempre visível:
+  // filtrar é útil em qualquer tamanho de lista, e uma busca que só existe às
+  // vezes obriga o usuário a descobrir em quais telas ela está.
+  .ds-picker__search {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    padding: 0;
+    // No celular a divisória é a do cabeçalho inteiro, não a da busca.
+    border-block-start: 0;
+  }
+
+  .ds-picker__search .ds-field__input {
+    // 40px: campo compacto dentro do cabeçalho. O corpo do texto continua 16px
+    // de propósito — abaixo disso o iOS dá zoom sozinho ao focar o campo.
+    min-block-size: 40px;
+    block-size: 40px;
+    // Espaço para o "×": ele ocupa 28px encostado a 8px da direita.
+    padding-inline-end: calc(var(--space-8) + var(--space-2));
+  }
+
+  // O ✕ nativo do `type="search"` sai de cena: nós desenhamos o nosso, e dois
+  // botões com a mesma função na mesma borda é um a mais.
+  .ds-picker__search .ds-field__input::-webkit-search-cancel-button,
+  .ds-picker__search .ds-field__input::-webkit-search-decoration {
+    appearance: none;
+  }
+
+  // --- Limpar ----------------------------------------------------------------
+  .ds-picker__clear:not([hidden]) {
+    display: flex;
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: var(--space-2);
+    transform: translateY(-50%);
+    align-items: center;
+    justify-content: center;
+    inline-size: 28px;
+    block-size: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .ds-picker__clear:hover {
+    color: var(--color-text);
+  }
+
+  // --- Ação: ícone 40×40 ------------------------------------------------------
+  .ds-picker__new {
+    flex: 0 0 auto;
+    inline-size: 40px;
+    block-size: 40px;
+    min-block-size: 40px;
+    padding: 0;
+  }
+
+  // O rótulo sai de cena; o nome acessível fica com o `aria-label` do botão.
+  .ds-picker__new-label {
+    display: none;
+  }
+
+  // --- Lista ------------------------------------------------------------------
+  .ds-picker__item {
+    gap: var(--space-2);
+    // 48px: linha de toque confortável, e cabe mais rubrica na dobra.
+    min-block-size: 48px;
+    padding-inline: var(--space-4);
+  }
+
+  // O anel de foco é para quem navega por teclado.
+  //
+  // Sem o `:focus`, o navegador desenhava o anel azul do sistema também no
+  // TOQUE — e como a rubrica ativa recebe foco ao abrir o painel, a linha aberta
+  // aparecia contornada de azul sem que ninguém tivesse pedido nada.
+  //
+  // `outline-offset: -2px` porque a linha é de borda a borda: um anel por fora
+  // seria recortado pelas laterais da folha.
+  .ds-picker__item:focus,
+  .ds-picker__clear:focus {
+    outline: none;
+  }
+
+  .ds-picker__item:focus-visible,
+  .ds-picker__clear:focus-visible {
+    outline: 2px solid var(--color-info);
+    outline-offset: -2px;
+  }
+
+  // Divisória de 1px entre linhas vizinhas VISÍVEIS — nem cartão, nem borda
+  // lateral. O `:not([hidden])` importa: com o filtro ativo, um separador
+  // grudado numa linha escondida apareceria solto no topo da lista.
+  .ds-picker__row:not([hidden]) + .ds-picker__row:not([hidden]) {
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  // A rubrica aberta: fundo cinza claro do sistema e um check verde à esquerda
+  // do nome. Sem pílula, sem margem própria, sem canto arredondado — a linha
+  // continua sendo uma linha da lista, só marcada.
+  .ds-picker__item.is-active {
+    background-color: var(--color-surface-muted);
+    color: var(--color-text);
+    font-weight: 600;
+    box-shadow: none;
+  }
+
+  .ds-picker__item.is-active .ds-picker__check {
+    display: block;
+    flex: 0 0 auto;
+    font-size: 1rem;
+    color: var(--color-primary);
+  }
+
+  // UM valor só: o que FALTA. O total existe no markup para o desktop, e aqui
+  // saía junto — dois números idênticos lado a lado, sem rótulo que os
+  // distinguisse.
+  .ds-picker__total {
+    display: none;
+  }
+
+  // Nada a pagar: em vez do valor, um check discreto. O texto "quitada"/"sem
+  // despesas" é do desktop; aqui o `aria-label` do ícone carrega a informação.
+  .ds-picker__settled {
+    display: inline-block;
+    color: var(--color-text-disabled);
+  }
+
+  .ds-picker__hint {
+    display: none;
+  }
+
+  // "Ver todas (N)". O `:not([hidden])` mantém a regra vencendo o atributo
+  // quando o JS a esconde — por exemplo ao expandir ou ao filtrar.
+  .ds-picker__more:not([hidden]) {
+    display: block;
+    inline-size: 100%;
+    min-block-size: var(--tap-target);
+    padding: 0 var(--space-4);
+    border: 0;
+    background: transparent;
+    color: var(--color-primary-text);
+    font: inherit;
+    font-weight: 600;
+    text-align: start;
+    cursor: pointer;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Menu ⋯ — popover nativo
+// -----------------------------------------------------------------------------
+.ds-menu {
+  min-inline-size: 13rem;
+  // `position: fixed` e o que o popover nativo ja usa; `margin: 0` e `left: auto`
+  // deixam o JS ancorar no botao. Sem `left: auto` o `inset: 0` do navegador
+  // venceria e o menu voltaria para o canto.
+  position: fixed;
+  margin: 0;
+  left: auto;
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--elevation-2);
+}
+
+.ds-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  inline-size: 100%;
+  min-block-size: var(--tap-target);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+.ds-menu__item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.ds-menu__item--danger {
+  color: var(--color-danger-text);
+}
+
+.ds-menu__item--danger:hover {
+  background-color: var(--color-danger-bg);
+}
+
+.ds-menu__divider {
+  margin: var(--space-1) var(--space-2);
+  border: 0;
+  border-block-start: 1px solid var(--color-border);
+}
+
+// -----------------------------------------------------------------------------
+// Bottom sheet (<= 639px)
+// -----------------------------------------------------------------------------
+@media (max-width: 639.98px) {
+  .ds-modal {
+    margin: auto 0 0;
+    inline-size: 100%;
+    max-inline-size: none;
+    max-block-size: 92dvh;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    border-start-start-radius: var(--radius-lg);
+    border-start-end-radius: var(--radius-lg);
+    animation: ds-sheet-in var(--motion-base) var(--ease-standard) both;
+  }
+}
+
+@keyframes ds-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-modal { animation: none; }
+}
+
+// -----------------------------------------------------------------------------
+// Container intermediário (640–1023px): mesmos componentes do celular, largura
+// limitada e centralizada. Os diálogos voltam a ser centralizados.
+// -----------------------------------------------------------------------------
+@media (min-width: 640px) and (max-width: 991.98px) {
+  .ds-home__detail {
+    max-inline-size: 720px;
+    margin-inline: auto;
+  }
+
+  .ds-modal {
+    margin: auto;
+    inline-size: min(26rem, 100%);
+    border-radius: var(--radius-lg);
+  }
+
+  // O painel saiu daqui: como folha, quem zera a margem lateral é o bloco de
+  // celular, que cobre esta faixa inteira.
+  .ds-expense-list {
+    margin-inline: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Ajustes finos do orçamento de altura no celular
+// -----------------------------------------------------------------------------
+// Soma alvo até a primeira despesa: topbar 52 + título 48 + resumo ~60 +
+// faixa da lista 36 = 196px. O resumo era ~90px.
+.ds-ledger-summary__label {
+  font-size: 0.75rem;
+}
+
+.ds-ledger-summary__number {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ds-ledger-summary__cell--remaining .ds-ledger-summary__number {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.ds-ledger-summary {
+  margin-block-end: var(--space-2);
+}
+
+.ds-list-head {
+  min-block-size: 36px;
+  margin-block: var(--space-1);
+}
+
+.ds-list-head__select {
+  min-block-size: 36px;
+}
+
+// O flash é a primeira coisa do <main> e empurra a lista inteira. Compacto, ele
+// deixa de ser o maior bloco da tela nos primeiros segundos após um redirect.
+.app-main > .ds-alert {
+  padding-block: var(--space-2);
+  margin-block-end: var(--space-2);
+}
+
+.app-main > .ds-alert .ds-alert__item {
+  font-size: 0.875rem;
+}
+
+// A borda tracejada dos gadgets saiu (o produto pediu sólida). Para o controle
+// não parecer ACIONÁVEL sem ser, ele usa a moldura de um [icon-button] comum e
+// carrega o aviso no nome acessível — não numa aparência quebrada.
+.app-gadget.app-gadget--pending {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+// -----------------------------------------------------------------------------
+// Resumo: tamanho fluido em vez de nowrap
+// -----------------------------------------------------------------------------
+// Três colunas de moeda não cabem em 320px com valor de 6 dígitos. `nowrap`
+// resolvia a quebra criando um problema pior: a coluna estourava a linha e o
+// valor colidia com o vizinho. Com `clamp()`, o número encolhe o quanto for
+// preciso e nunca quebra nem estoura.
+.ds-ledger-summary__number {
+  font-size: clamp(0.75rem, 3.4vw, 1rem);
+}
+
+.ds-ledger-summary__cell--remaining .ds-ledger-summary__number {
+  font-size: clamp(0.8125rem, 3.8vw, 1.125rem);
+}
+
+// =============================================================================
+// DESKTOP (>= 992px) — mesma largura que o shell já usa para a sidebar fixa
+// =============================================================================
+// Tudo aqui é correção de regressão: as mudanças do celular reorganizaram o
+// DOM (título e resumo saíram da coluna do detalhe para a raiz do grid) e a
+// grade antiga, que assumia [rubricas | detalhe], pôs o título e o resumo na
+// coluna estreita.
+// =============================================================================
+@media (min-width: 992px) {
+  // --- 1. Grade por ÁREAS NOMEADAS -------------------------------------------
+  // Nomeadas, e não por posição: a ordem dos filhos mudou, e uma grade baseada
+  // em ordem quebraria de novo na próxima reorganização do DOM.
+  .ds-home {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-areas:
+      "panel pinned"
+      "panel detail";
+    grid-template-rows: auto 1fr;
+    column-gap: 0;
+    align-items: start;
+  }
+
+  .ds-ledger-pinned { grid-area: pinned; }
+  .ds-home__detail {
+    grid-area: detail;
+    max-inline-size: none;
+    margin-inline: 0;
+  }
+
+  // --- 2. Painel de rubricas SEMPRE visível ----------------------------------
+  // No desktop o painel não é um menu que abre: é a coluna de navegação entre
+  // rubricas, e estava escondida atrás do atributo `hidden`. As demais medidas
+  // da coluna estão no bloco de acabamento, mais abaixo.
+  .ds-picker__panel[hidden] { display: block; }
+
+  // No desktop o valor é o TOTAL; o "faltam" do celular sai de cena.
+  .ds-picker__remaining { display: none; }
+  .ds-picker__total { display: inline; }
+
+  // A alça fica SEMPRE visível com ordem manual — o modo de reordenação é uma
+  // economia de tela do celular, não uma etapa no desktop.
+  .ds-expense-list.is-manual .ds-expense-row__grip { display: flex; }
+
+  // ...e o item do menu some, porque não há o que ligar.
+  .ds-menu__item--reorder { display: none; }
+
+  // --- 3. Título e resumo na coluna larga ------------------------------------
+  .ds-titlebar { padding-inline: var(--space-4); }
+
+  // No desktop o título não é um seletor: a coluna ao lado já mostra todas as
+  // rubricas. Fica só o nome, e o controle deixa de ser acionável.
+  .ds-titlebar__toggle {
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .ds-titlebar__chevron { display: none; }
+
+  .ds-ledger-summary {
+    padding-inline: var(--space-4);
+  }
+
+  // `flex: none` nas células: com `flex: 1`, cada uma recebia um terço da
+  // largura e valores de 6 dígitos se sobrepunham.
+  .ds-ledger-summary__values {
+    gap: var(--space-8);
+    margin-block-end: var(--space-2);
+  }
+
+  .ds-ledger-summary__cell { flex: 0 0 auto; }
+
+  .ds-ledger-summary__number {
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .ds-ledger-summary__cell--remaining .ds-ledger-summary__number {
+    font-size: 1.125rem;
+  }
+
+  // --- 4. Cabeçalho da lista e "Nova despesa" na mesma linha -----------------
+  .ds-home__detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "head    actions"
+      "list    list";
+    align-items: center;
+    column-gap: var(--space-4);
+  }
+
+  .ds-list-head {
+    grid-area: head;
+    margin-block: var(--space-3) var(--space-2);
+  }
+
+  .ds-expense-actions {
+    grid-area: actions;
+    position: static;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .ds-expense-actions .ds-btn {
+    inline-size: auto;
+    min-block-size: 40px;
+  }
+
+  #expense-list { grid-area: list; }
+
+  // --- 5. Linha densa, uma faixa só ------------------------------------------
+  .ds-expense-row {
+    min-block-size: 52px;
+    padding: var(--space-1) var(--space-4);
+    column-gap: var(--space-3);
+    grid-template-columns: 24px 44px minmax(0, 1fr) 220px 120px 44px;
+    grid-template-areas: "grip check name meta amount remove";
+  }
+
+  // Sem ordem manual não há alça: a coluna some em vez de virar vão vazio.
+  .ds-expense-list:not(.is-manual) .ds-expense-row {
+    grid-template-columns: 44px minmax(0, 1fr) 220px 120px 44px;
+    grid-template-areas: "check name meta amount remove";
+  }
+
+  .ds-expense-list:not(.is-manual) .ds-expense-row__grip-placeholder { display: none; }
+
+  // O chip encosta à esquerda da própria coluna, então todos se alinham.
+  .ds-expense-row__meta { justify-self: start; }
+
+  .ds-expense-row__amount { justify-self: end; }
+}
+
+// Entre 992 e 1199 a coluna de detalhe fica estreita; a de rubricas encolhe
+// para devolver espaço a ela.
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .ds-home { grid-template-columns: 220px minmax(0, 1fr); }
+}
+
+@media (min-width: 992px) {
+  // `stretch` e não `start`: com `start` a coluna de rubricas encolhia até o
+  // conteúdo, e o botão "Nova rubrica" — que fecha a coluna — ficava fora da
+  // tela em vez de preso ao rodapé dela.
+  .ds-home { align-items: stretch; }
+}
+
+@media (min-width: 992px) {
+  // A ALTURA É DO GRID, não da coluna.
+  //
+  // Limitar só a coluna não bastava: ela tem altura fixa mas começa onde o
+  // conteúdo acima termina, então o botão "Nova rubrica" — que a fecha —
+  // continuava caindo fora da viewport. Com o grid limitado, a linha `1fr` se
+  // ajusta e a coluna preenche exatamente o que sobra.
+  .ds-home {
+    block-size: calc(100dvh - var(--app-topbar-h) - var(--app-footer-h) - var(--space-4));
+    min-block-size: 0;
+  }
+
+  .ds-home__detail {
+    block-size: 100%;
+    min-block-size: 0;
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 992px) {
+  // Reserva para o que fica acima do grid (o flash, quando há) e para o
+  // respiro inferior. Sem ela o grid terminava abaixo da viewport e o botão
+  // "Nova rubrica", que fecha a coluna, ficava inalcançável.
+  .ds-home {
+    block-size: calc(100dvh - var(--app-topbar-h) - var(--app-footer-h) - 7rem);
+  }
+}
+
+// =============================================================================
+// DESKTOP (>= 992px) — geometria final
+// =============================================================================
+// Bloco de acabamento: substitui as aproximações das rodadas anteriores pelos
+// valores medidos. Escrito como seletor descendente de propósito — o
+// app_shell.scss é importado DEPOIS desta folha e, com especificidade igual,
+// vence por ordem.
+// =============================================================================
+@media (min-width: 992px) {
+  // --- Página ---------------------------------------------------------------
+  .app > .app-main {
+    padding: 20px 24px 12px;
+  }
+
+  // --- Grade ----------------------------------------------------------------
+  .ds-home {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    grid-template-areas:
+      "panel pinned"
+      "panel detail";
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 24px;
+    row-gap: 0;
+    block-size: calc(100dvh - var(--app-topbar-h) - var(--app-footer-h) - 32px);
+    min-block-size: 0;
+    align-items: stretch;
+  }
+
+  .ds-home > * {
+    min-inline-size: 0;
+    box-sizing: border-box;
+  }
+
+  .ds-ledger-pinned { grid-area: pinned; }
+  .ds-home__detail { grid-area: detail; }
+
+  // O bloco preso é só conteúdo agora: a coluna ao lado é transparente e a
+  // coluna de detalhe não tem moldura própria. Fundo colorido aqui aparecia
+  // como um retângulo sobre o canto da coluna vizinha.
+  .ds-ledger-pinned {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    z-index: auto;
+    position: static;
+  }
+
+  // A faixa que cobria o padding do <main> existia para o bloco preso do
+  // celular. No desktop os blocos não são presos, então ela só ocupava altura.
+  .app > .app-main::before { display: none; }
+
+  // --- Coluna de rubricas ---------------------------------------------------
+  // Declarada UMA vez. As rodadas anteriores empilhavam um bloco novo a cada
+  // ajuste de geometria, e as declarações repetidas — `block-size`, `grid-area`,
+  // `max-block-size` — escondiam qual valor realmente valia. O que está aqui é a
+  // soma efetiva daqueles blocos.
+  .ds-picker__panel {
+    grid-area: panel;
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    border: 0;
+    border-inline-end: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: 0 16px 0 0;
+    margin: 0;
+    // A altura vem do grid (a linha `1fr` se ajusta), e não da coluna.
+    block-size: 100%;
+    max-block-size: none;
+    min-block-size: 0;
+    // `static` (e não `sticky`): quem prende é a altura do grid. O
+    // `inset-block-start` fica para o caso de a coluna voltar a ser sticky.
+    position: static;
+    inset-block-start: var(--app-topbar-h);
+    // A rolagem é do corpo, não da coluna.
+    overflow: hidden;
+  }
+
+  .ds-picker__body {
+    order: 1;
+    flex: 1 1 auto;
+    // `min-block-size: 0` é o que deixa o corpo encolher e rolar dentro do flex.
+    min-block-size: 0;
+    max-block-size: none;
+    overflow-y: auto;
+    // A lista fica parada enquanto a coluna de detalhe ao lado rola.
+    position: sticky;
+    inset-block-start: var(--space-4);
+  }
+
+  .ds-picker__item {
+    min-block-size: 44px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    gap: var(--space-2);
+  }
+
+  .ds-picker__name {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Sem `flex: none`, a coluna do valor encolhia e o número era cortado —
+  // "R$ 13.379,2...".
+  .ds-picker__amount {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // A coluna já tem o próprio respiro lateral (16px à direita), então a busca
+  // abre mão do padding inline e encosta na mesma borda que a lista.
+  .ds-picker__search {
+    flex: 0 0 auto;
+    padding-inline: 0;
+  }
+
+  // --- Cabeçalho e rodapé da coluna -----------------------------------------
+  // O `order` é o que faz UM markup servir às duas telas. No celular o
+  // cabeçalho vem antes da lista, porque é o topo da folha; aqui ele vai
+  // DEPOIS, que é onde a §7 manda a busca no desktop — presa no fim da coluna,
+  // com a ação logo abaixo.
+  .ds-picker__head {
+    order: 2;
+    // `flex: 0 0 auto`: quem cede altura é o corpo, que é quem rola.
+    flex: 0 0 auto;
+  }
+
+  // Mesma ação do "+" do celular, em botão largo. Continua `inline-flex` (e não
+  // esticado) porque o cabeçalho é bloco, não flex.
+  .ds-picker__new {
+    // Os 12px que o rodapé antigo punha entre a busca e o botão.
+    margin-block-start: 12px;
+    inline-size: auto;
+    min-block-size: 36px;
+    padding-inline: var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  // --- Coluna de detalhe: uma borda só para tudo ----------------------------
+  // Título, resumo, barra, cabeçalho e cartão compartilham a MESMA borda
+  // esquerda e a MESMA direita. Nenhum deles tem padding ou margem lateral
+  // própria que o afaste dela.
+  .ds-titlebar,
+  .ds-ledger-summary,
+  .ds-progress,
+  .ds-list-head,
+  .ds-expense-actions,
+  #expense-list {
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .ds-titlebar {
+    block-size: 44px;
+    min-block-size: 44px;
+    align-items: center;
+  }
+
+  .ds-titlebar__toggle { pointer-events: none; cursor: default; }
+  .ds-titlebar__chevron { display: none; }
+
+  .ds-titlebar__name { font-size: 1.5rem; }
+
+  .ds-ledger-summary {
+    margin-block-start: 8px;
+  }
+
+  .ds-ledger-summary__values {
+    gap: 32px;
+    margin-block-end: 8px;
+  }
+
+  .ds-ledger-summary__cell { flex: 0 0 auto; }
+
+  .ds-progress {
+    margin-block-start: 8px;
+    block-size: 6px;
+    inline-size: 100%;
+  }
+
+  // --- Cabeçalho da lista e ação, na mesma linha ----------------------------
+  .ds-home__detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "head    actions"
+      "list    list";
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: 0;
+    min-block-size: 0;
+    block-size: 100%;
+    padding-block-end: 0;
+  }
+
+  .ds-list-head {
+    grid-area: head;
+    margin-block: 16px 0;
+    block-size: 44px;
+    min-block-size: 44px;
+  }
+
+  .ds-expense-actions {
+    grid-area: actions;
+    position: static;
+    margin: 16px 0 0;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .ds-expense-actions .ds-btn {
+    inline-size: auto;
+    min-block-size: 44px;
+  }
+
+  // --- Cartão da lista ------------------------------------------------------
+  // Ocupa a altura que sobra e rola por dentro. O bloco de cima (título,
+  // resumo, cabeçalho) fica fora da rolagem.
+  #expense-list {
+    grid-area: list;
+    margin-block-start: 12px;
+    min-block-size: 0;
+    overflow-y: auto;
+  }
+
+  .ds-expense-list {
+    margin-block-start: 0;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .ds-home { grid-template-columns: 220px minmax(0, 1fr); }
+}
+
+@media (min-width: 992px) {
+  // `stretch`, e NÃO `center`, na coluna de detalhe.
+  //
+  // Com `center` o item não estica: o cartão da lista crescia até a altura do
+  // conteúdo (1803px) em vez de caber na linha de 1fr, e transbordava
+  // IGUALMENTE para cima e para baixo — a primeira despesa aparecia a -402px,
+  // acima da topbar. O alinhamento central que o cabeçalho precisa vai no
+  // próprio item, com `align-self`.
+  .ds-home__detail {
+    align-items: stretch;
+  }
+
+  .ds-list-head,
+  .ds-expense-actions {
+    align-self: center;
+  }
+}
+
+@media (min-width: 992px) {
+  // 2px a menos no vão entre o cabeçalho e o cartão: com 12px a primeira
+  // despesa caía a 212px da topbar, e o teto é 210.
+  #expense-list {
+    margin-block-start: 10px;
+  }
+}
+
+@media (min-width: 992px) {
+  // O cartão preenche a altura que sobra.
+  //
+  // `#expense-list` ocupa a linha `minmax(0, 1fr)` — dimensionada para caber a
+  // tela — mas o `<ul>` dentro dele era da altura do conteúdo. Com poucas
+  // despesas, a lista terminava cedo e sobrava um vão de 213px entre o fim do
+  // cartão e o rodapé, lendo como espaço morto.
+  #expense-list > .ds-expense-list {
+    min-block-size: 100%;
+  }
+}

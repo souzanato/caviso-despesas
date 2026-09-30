@@ -1,0 +1,22 @@
+pt-BR:
+  shared:
+    cancel: Cancelar
+
+  home:
+    new_expense: Nova despesa
+
+  expenses:
+    new:
+      title: Nova despesa
+    edit:
+      title: Editar despesa
+    form:
+      name_label: Nome
+      name_placeholder: "Ex.: Internet, Prestação escola"
+      amount_label: Valor
+      amount_hint: "Digite só os números. Zero é um valor válido."
+      category_label: Categoria
+      category_placeholder: "Buscar ou criar…"
+      submit: Salvar
+      submit_update: Salvar alterações
+      cancel: Cancelar

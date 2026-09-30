@@ -1,0 +1,28 @@
+# Copy do shell da aplicação (topbar, menu lateral, rodapé).
+pt-BR:
+  app:
+    name: Despesas Caviso
+
+    nav:
+      aria_label: Navegação principal
+      pending: Disponível em breve
+      registry:
+        label: Cadastro
+        categories: Categorias
+
+    topbar:
+      open_menu: Abrir menu de navegação
+      close_menu: Fechar menu de navegação
+      toggle_sidebar: Alternar largura do menu lateral
+      user_menu: Menu do usuário
+      account: Minha conta
+      sign_out: Sair
+
+    footer:
+      gadgets_label: Gadgets
+      calendar: Calendário
+      calculator: Calculadora
+      # Nome acessível dos gadgets enquanto não têm comportamento. O rótulo
+      # visível continua sendo só "Calendário"/"Calculadora"; o aviso existe
+      # para quem usa leitor de tela.
+      gadget_pending: "%{name} — disponível em breve"

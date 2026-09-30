@@ -1,0 +1,9 @@
+<%#
+  Nome em branco, por exemplo: o modal continua aberto com o que foi digitado e
+  o erro aparece dentro dele.
+%>
+<%= turbo_stream.update "rubrica-modal-form",
+                        partial: "ledgers/form",
+                        locals: { ledger: @ledger,
+                                  previous_ledger: @previous_ledger,
+                                  error: @error } %>

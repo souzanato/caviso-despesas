@@ -1,0 +1,37 @@
+pt-BR:
+  home:
+    no_ledgers:
+      action: Criar primeira rubrica
+    picker:
+      new: Nova rubrica
+      settled: quitada
+      # Só o número. A coluna tem 240px, e a palavra "faltam" empurrava o nome
+      # da rubrica para o truncamento. O rótulo já diz que é o que falta.
+      remaining: "%{amount}"
+
+  ledgers:
+    new:
+      title: Nova rubrica
+    edit:
+      title: Editar rubrica
+    actions:
+      menu: Ações da rubrica
+      rename: Renomear rubrica
+      delete: Excluir rubrica
+    confirm:
+      title: "Excluir \"%{ledger}\"?"
+      empty: A rubrica será excluída. Ela não tem despesas.
+      with_items:
+        one: A rubrica e sua despesa serão excluídas.
+        other: A rubrica e suas %{count} despesas serão excluídas.
+      action: Excluir rubrica
+    flash:
+      destroyed: Rubrica excluída.
+    form:
+      name_label: Nome
+      name_hint: "Um mês, uma viagem, o que você quiser."
+      copy_from: "Copiar as despesas de \"%{ledger}\""
+      copy_hint: "As despesas copiadas entram como não pagas."
+      submit_create: Criar rubrica
+      submit_update: Salvar alterações
+      cancel: Cancelar

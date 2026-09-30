@@ -1,0 +1,25 @@
+<%#
+  Fecha o modal e atualiza só o que mudou.
+
+  Recarregar a tela inteira fecharia o modal e perderia a posição da lista —
+  numa tela onde o usuário lança várias despesas seguidas, isso pesa.
+%>
+<%= turbo_stream.replace "ledger-summary",
+                         partial: "shared/ledger_summary",
+                         locals: { ledger: @ledger } %>
+
+<%= turbo_stream.replace "expense-list",
+                         partial: "shared/expense_list",
+                         locals: { ledger_items: @ledger_items, ledger: @ledger, sort: ledger_sort } %>
+
+<%= turbo_stream.update "expense-form",
+                        partial: "ledger_items/form",
+                        locals: { ledger: @ledger, ledger_item: LedgerItem.new } %>
+
+<%= turbo_stream.append "expense-modal", partial: "ledger_items/close_modal" %>
+
+<%# O saldo da rubrica selecionada muda junto — sem isto o picker fica
+    mostrando o "falta" antigo até recarregar a pagina. %>
+<%= turbo_stream.replace dom_id(@ledger, :picker_amount),
+                         partial: "shared/picker_amount",
+                         locals: { ledger: @ledger } %>

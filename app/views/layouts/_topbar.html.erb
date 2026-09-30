@@ -1,0 +1,36 @@
+<header class="app-topbar">
+  <div class="app-topbar__start">
+    <%#
+      Mobile: abre o drawer. O Bootstrap já neutraliza o offcanvas a partir de
+      lg, então este botão só existe abaixo disso.
+    %>
+    <button type="button"
+            class="app-icon-btn d-lg-none"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#app-sidebar"
+            aria-controls="app-sidebar"
+            aria-label="<%= t("app.topbar.open_menu") %>">
+      <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
+
+    <%# Desktop: expande/retrai a sidebar. %>
+    <button type="button"
+            class="app-icon-btn d-none d-lg-inline-flex"
+            data-sidebar-target="toggle"
+            data-action="sidebar#toggle"
+            aria-controls="app-sidebar"
+            aria-expanded="false"
+            aria-label="<%= t("app.topbar.toggle_sidebar") %>">
+      <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
+    </button>
+
+    <a class="app-brand" href="<%= root_path %>">
+      <span class="app-brand__icon"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+      <span class="app-brand__name"><%= t("app.name") %></span>
+    </a>
+  </div>
+
+  <div class="app-topbar__end">
+    <%= render "layouts/user_menu" %>
+  </div>
+</header>

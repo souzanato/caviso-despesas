@@ -1,0 +1,25 @@
+<%#
+  Remove a linha e oferece desfazer.
+
+  A lista inteira é substituída, e não só a linha: se esta era a última, é
+  preciso que o estado vazio apareça.
+%>
+<%= turbo_stream.replace "expense-list",
+                         partial: "shared/expense_list",
+                         locals: { ledger_items: @ledger_items, ledger: @ledger, sort: ledger_sort } %>
+
+<%= turbo_stream.replace "ledger-summary",
+                         partial: "shared/ledger_summary",
+                         locals: { ledger: @ledger } %>
+
+<%= turbo_stream.update "snackbar",
+                        partial: "shared/snackbar",
+                        locals: { message: t("home.row.removed", name: @removed_name),
+                                  undo_url: restore_ledger_items_path,
+                                  undo_params: @undo } %>
+
+<%# O saldo da rubrica selecionada muda junto — sem isto o picker fica
+    mostrando o "falta" antigo até recarregar a pagina. %>
+<%= turbo_stream.replace dom_id(@ledger, :picker_amount),
+                         partial: "shared/picker_amount",
+                         locals: { ledger: @ledger } %>

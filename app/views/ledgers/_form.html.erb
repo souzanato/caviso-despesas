@@ -1,0 +1,54 @@
+<%# locals: (ledger:, previous_ledger: nil, error: nil) %>
+<%#
+  Conteúdo do [rubrica-modal] §10.
+
+  Serve para criar e para renomear. A caixa de copiar só aparece na criação —
+  renomear não tem o que copiar.
+%>
+<% editing = ledger.persisted? %>
+
+<%= form_with model: ledger,
+              url: editing ? ledger_path(ledger) : ledgers_path,
+              method: editing ? :patch : :post,
+              class: "ds-form" do |f| %>
+  <h2 class="ds-modal__title">
+    <%= editing ? t("ledgers.edit.title") : t("ledgers.new.title") %>
+  </h2>
+
+  <% if error.present? %>
+    <div class="ds-alert ds-alert--error" role="alert">
+      <div class="ds-alert__content">
+        <p class="ds-alert__item"><%= error %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="ds-field">
+    <%= f.label :name, t("ledgers.form.name_label"), class: "ds-field__label" %>
+    <%= f.text_field :name, class: "ds-field__input", autocomplete: "off",
+                             value: ledger.name.presence || suggested_ledger_name(previous_ledger) %>
+    <p class="ds-field__hint"><%= t("ledgers.form.name_hint") %></p>
+  </div>
+
+  <% if !editing && previous_ledger %>
+    <%#
+      Vem MARCADA e com o nome da origem explícito: o usuário vê de onde vêm as
+      despesas antes de aceitar, em vez de descobrir depois.
+    %>
+    <label class="ds-choice">
+      <%= check_box_tag :copy_previous, "1", true, class: "ds-choice__input" %>
+      <span class="ds-choice__label">
+        <%= t("ledgers.form.copy_from", ledger: previous_ledger.name) %>
+      </span>
+    </label>
+    <p class="ds-field__hint"><%= t("ledgers.form.copy_hint") %></p>
+  <% end %>
+
+  <div class="ds-modal__actions">
+    <button type="button" class="ds-btn ds-btn--secondary" data-action="click->modal#close">
+      <%= t("ledgers.form.cancel") %>
+    </button>
+    <%= f.submit editing ? t("ledgers.form.submit_update") : t("ledgers.form.submit_create"),
+                 class: "ds-btn ds-btn--block ds-btn--primary" %>
+  </div>
+<% end %>

@@ -1,0 +1,7 @@
+<% content_for :title, t("categories.edit.title") %>
+
+<%= render "shared/page_header", title: t("categories.edit.title") %>
+
+<div class="ds-form-card">
+  <%= render "form", category: @category %>
+</div>

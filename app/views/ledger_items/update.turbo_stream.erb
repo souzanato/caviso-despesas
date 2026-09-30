@@ -1,0 +1,19 @@
+<%#
+  Substitui a linha e o resumo em vez de recarregar a tela.
+
+  Só estes dois pedaços mudam quando um item é marcado como pago — recarregar a
+  lista inteira faria a página piscar na ação mais frequente do app.
+%>
+<%= turbo_stream.replace dom_id(@ledger_item),
+                         partial: "shared/expense_row",
+                         locals: { item: @ledger_item } %>
+
+<%= turbo_stream.replace "ledger-summary",
+                         partial: "shared/ledger_summary",
+                         locals: { ledger: @ledger } %>
+
+<%# O saldo da rubrica selecionada muda junto — sem isto o picker fica
+    mostrando o "falta" antigo até recarregar a pagina. %>
+<%= turbo_stream.replace dom_id(@ledger, :picker_amount),
+                         partial: "shared/picker_amount",
+                         locals: { ledger: @ledger } %>

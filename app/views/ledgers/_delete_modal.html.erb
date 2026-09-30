@@ -1,0 +1,15 @@
+<%# locals: (ledger:) %>
+<%#
+  Confirmação de exclusão da rubrica selecionada.
+
+  O texto diz QUANTAS despesas vão junto: "excluir rubrica" sozinho não deixa
+  claro que o conteúdo vai embora com ela.
+%>
+<% count = ledger.ledger_items.size %>
+
+<%= render "shared/modal_confirm",
+           id: "rubrica-delete-modal",
+           title: t("ledgers.confirm.title", ledger: ledger.name),
+           body: count.zero? ? t("ledgers.confirm.empty") : t("ledgers.confirm.with_items", count: count),
+           confirm_label: t("ledgers.confirm.action"),
+           url: ledger_path(ledger) %>

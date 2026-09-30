@@ -1,0 +1,29 @@
+<%# locals: (id:, title:, body:, confirm_label:, url:) %>
+<%#
+  [modal-confirm] §8 — confirmação de ação destrutiva.
+
+  Ao contrário do resto da tela, aqui a confirmação VEM ANTES. A regra do §8 é
+  que ações reversíveis ajam e ofereçam desfazer; esta existe porque excluir uma
+  rubrica leva as despesas junto e não há volta barata.
+
+  Com `column-reverse`, "Cancelar" fica na posição mais próxima do polegar e o
+  botão destrutivo fora do alcance fácil — o §8 pede que ele não seja o padrão.
+%>
+<dialog class="ds-modal"
+        id="<%= id %>"
+        data-action="click->modal#backdrop"
+        aria-label="<%= title %>">
+  <div class="ds-form">
+    <h2 class="ds-modal__title"><%= title %></h2>
+    <p class="ds-modal__body"><%= body %></p>
+
+    <div class="ds-modal__actions">
+      <button type="button" class="ds-btn ds-btn--secondary" data-action="click->modal#close">
+        <%= t("shared.cancel") %>
+      </button>
+      <%= button_to confirm_label, url,
+                    method: :delete,
+                    class: "ds-btn ds-btn--block ds-btn--danger" %>
+    </div>
+  </div>
+</dialog>

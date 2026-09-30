@@ -1,0 +1,146 @@
+# Copy das telas de autenticação. Nenhuma string fica solta nas views ou no CSS.
+pt-BR:
+  activerecord:
+    models:
+      user:
+        one: Usuário
+        other: Usuários
+    attributes:
+      user:
+        full_name: Nome completo
+        username: Nome de usuário
+        email: E-mail
+        password: Senha
+        password_confirmation: Confirmação de senha
+        current_password: Senha atual
+        remember_me: Lembrar de mim
+
+  auth:
+    labels:
+      new_password: Nova senha
+      confirm_new_password: Confirme a nova senha
+
+    placeholder:
+      full_name: Como você quer ser chamado
+      username: "ex.: renato"
+      email: voce@exemplo.com
+      password: "••••••••"
+
+    hint:
+      password_min: Mínimo de %{count} caracteres
+      password_blank: Deixe em branco para manter a atual
+      current_password: Precisamos da senha atual para confirmar a alteração
+      pending_reconfirmation: Aguardando confirmação de %{email}
+
+    passkey:
+      action: Entrar com biometria
+      hint: Use a digital ou o rosto do seu aparelho
+
+    oauth:
+      sign_in_with: Entrar com %{provider}
+      providers:
+        google_oauth2: Google
+
+    submit:
+      sign_in: Entrar
+      sign_up: Criar conta
+      send_reset: Enviar instruções
+      change_password: Alterar minha senha
+      update: Salvar alterações
+      resend_confirmation: Reenviar instruções
+      resend_unlock: Reenviar instruções
+
+    # As chaves seguem "<controller>_<action>" do layout dedicado
+    # (ver AuthHelper#auth_screen_key).
+    screens:
+      sessions_new:
+        title: Entrar
+        subtitle: Acesse sua conta para continuar
+      registrations_new:
+        title: Criar conta
+        subtitle: Comece a organizar suas despesas
+      registrations_edit:
+        title: Editar conta
+        subtitle: Atualize seus dados de acesso
+      passwords_new:
+        title: Esqueceu sua senha?
+        subtitle: Enviamos um link de redefinição para o seu e-mail
+      passwords_edit:
+        title: Definir nova senha
+        subtitle: Escolha uma nova senha para sua conta
+      confirmations_new:
+        title: Reenviar confirmação
+        subtitle: Enviamos as instruções de confirmação para o seu e-mail
+      unlocks_new:
+        title: Reenviar desbloqueio
+        subtitle: Enviamos as instruções de desbloqueio para o seu e-mail
+      # Tela de bloqueio (LockController#show). Fica junto das telas de
+      # autenticação porque usa o MESMO layout e a mesma chave de resolução
+      # (AuthHelper monta isso a partir de controller_name + action_name).
+      lock_show:
+        title: Sem permissão
+        subtitle: Você não tem permissão. Clique em Sair.
+
+    links:
+      sign_in: Já tenho conta
+      sign_up: Criar uma conta
+      forgot_password: Esqueci minha senha
+      resend_confirmation: Reenviar confirmação
+      resend_unlock: Reenviar desbloqueio
+      back: Voltar
+
+    errors:
+      title:
+        one: "1 erro impediu o envio:"
+        other: "%{count} erros impediram o envio:"
+
+    account:
+      cancel_title: Cancelar minha conta
+      cancel_hint: Ação permanente. Todos os seus dados serão removidos.
+      cancel_action: Cancelar minha conta
+      cancel_confirm: Tem certeza?
+
+  # Strings usadas pelo controller de callback do Google.
+  omniauth:
+    google:
+      failure: Não foi possível autenticar com o Google.
+      missing_auth: Não foi possível autenticar com o Google. Tente novamente.
+
+  # Corpo dos e-mails transacionais (os assuntos ficam em devise.pt-BR.yml).
+  devise:
+    mailer:
+      confirmation_instructions:
+        greeting: "Bem-vindo, %{recipient}!"
+        instruction: Confirme seu endereço de e-mail pelo link abaixo.
+        action: Confirmar minha conta
+      email_changed:
+        greeting: "Olá, %{recipient}!"
+        changing: Estamos avisando que seu e-mail está sendo alterado para %{email}.
+        changed: Estamos avisando que seu e-mail foi alterado para %{email}.
+      password_change:
+        greeting: "Olá, %{recipient}!"
+        notice: Estamos avisando que sua senha foi alterada.
+      reset_password_instructions:
+        greeting: "Olá, %{recipient}!"
+        instruction: Alguém solicitou um link para alterar sua senha. Use o botão abaixo.
+        action: Alterar minha senha
+        ignore: Se não foi você, ignore este e-mail.
+        wont_change: Sua senha só muda depois que você acessar o link e cadastrar uma nova.
+      unlock_instructions:
+        greeting: "Olá, %{recipient}!"
+        instruction: Sua conta foi bloqueada por excesso de tentativas de acesso malsucedidas.
+        action_instruction: Clique no botão abaixo para desbloquear sua conta.
+        action: Desbloquear minha conta
+      footer:
+        disclaimer: Você recebeu este e-mail porque tem uma conta no %{app}.
+        rights: Todos os direitos reservados.
+
+  # Mensagens de validação do model User.
+  # O validador `format` do Rails usa a chave :invalid por padrão.
+  activemodel:
+    errors:
+      models:
+        user:
+          attributes:
+            username:
+              invalid: deve conter apenas letras, números, ponto, hífen e underline

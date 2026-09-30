@@ -1,0 +1,34 @@
+<%# locals: (message: nil, undo_url: nil, undo_params: {}) %>
+<%#
+  [snackbar] §8 — mensagem temporária com ação.
+
+  Ações reversíveis agem e oferecem desfazer, em vez de pedir confirmação
+  antes: remover uma despesa da rubrica não precisa de diálogo, precisa de
+  volta atrás.
+
+  O elemento INTEIRO só existe quando há mensagem. Deixar a condicional por
+  dentro do elemento produziria nós de texto vazios, o seletor :empty do CSS
+  nunca casaria, e um retângulo preto ficaria na tela — foi o que aconteceu.
+
+  ATENÇÃO: este comentário não pode conter delimitadores ERB. O fechamento
+  interno encerraria o comentário e o resto do texto vazaria como HTML na
+  página. Mesma armadilha documentada em devise/sessions/new.html.erb.
+%>
+<% if message.present? %>
+  <div class="ds-snackbar"
+       data-controller="snackbar"
+       data-snackbar-duration-value="8000"
+       data-action="mouseenter->snackbar#hold mouseleave->snackbar#release focusin->snackbar#hold focusout->snackbar#release"
+       role="status"
+       aria-live="polite">
+    <span class="ds-snackbar__message"><%= message %></span>
+
+    <% if undo_url.present? %>
+      <%= button_to t("shared.undo"), undo_url,
+                    method: :post,
+                    params: undo_params,
+                    class: "ds-snackbar__action",
+                    form: { class: "ds-inline-form" } %>
+    <% end %>
+  </div>
+<% end %>

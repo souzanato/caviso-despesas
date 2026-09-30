@@ -1,0 +1,10 @@
+<%#
+  Falha de validação: o erro volta para DENTRO do modal.
+
+  O modal não fecha e o que foi digitado continua lá — perder o preenchimento
+  por causa de um nome em branco seria punir o usuário por um erro trivial.
+%>
+<%= turbo_stream.update "expense-form",
+                        partial: "ledger_items/form",
+                        locals: { ledger: @ledger, ledger_item: @ledger_item,
+                                  error: @error, name_value: @name_value } %>

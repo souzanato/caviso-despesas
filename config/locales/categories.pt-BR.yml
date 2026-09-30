@@ -1,0 +1,28 @@
+pt-BR:
+  categories:
+    index:
+      title: Categorias
+      description: Agrupam as despesas do cadastro permanente.
+      new: Nova categoria
+      empty_title: Nenhuma categoria ainda
+      empty_text: Categorias agrupam suas despesas. Crie a primeira para começar.
+    new:
+      title: Nova categoria
+    edit:
+      title: Editar categoria
+    form:
+      name_label: Nome
+      name_hint: "Como você chama esta categoria. Ex.: Moradia, Saúde, Pets."
+      submit_create: Criar categoria
+      submit_update: Salvar alterações
+      cancel: Cancelar
+    row:
+      edit: Editar
+      destroy: Excluir
+    confirm:
+      destroy: "Excluir a categoria \"%{name}\"? Esta ação não pode ser desfeita."
+    flash:
+      created: Categoria criada.
+      updated: Categoria atualizada.
+      destroyed: Categoria excluída.
+      in_use: Esta categoria está em uso por despesas e não pode ser excluída.

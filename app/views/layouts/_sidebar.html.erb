@@ -1,0 +1,35 @@
+<%#
+  Sidebar de navegação.
+
+  `offcanvas-lg offcanvas-start` (e não `offcanvas`): abaixo de lg vira um
+  drawer deslizante — com backdrop, fechamento por Escape e trava de scroll
+  vindos do Bootstrap — e a partir de lg o próprio Bootstrap neutraliza esses
+  estilos, deixando o elemento como coluna estática do grid.
+%>
+<aside class="offcanvas-lg offcanvas-start app-sidebar"
+       id="app-sidebar"
+       tabindex="-1"
+       aria-labelledby="app-sidebar-title"
+       data-sidebar-target="drawer">
+  <%# O Bootstrap esconde o .offcanvas-header a partir de lg: o título e o
+      botão de fechar só aparecem no drawer mobile. %>
+  <div class="offcanvas-header app-sidebar__header">
+    <span class="offcanvas-title app-sidebar__title" id="app-sidebar-title">
+      <%= t("app.name") %>
+    </span>
+    <button type="button"
+            class="btn-close btn-close-white"
+            data-action="sidebar#close"
+            aria-label="<%= t("app.topbar.close_menu") %>"></button>
+  </div>
+
+  <div class="offcanvas-body">
+    <nav class="app-nav" aria-label="<%= t("app.nav.aria_label") %>">
+      <ul class="app-nav__list">
+        <% navigation_items.each do |item| %>
+          <%= render "layouts/nav_item", item: item %>
+        <% end %>
+      </ul>
+    </nav>
+  </div>
+</aside>

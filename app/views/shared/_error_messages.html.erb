@@ -1,0 +1,27 @@
+<%# locals: (resource:, title_key: "shared.errors.title") %>
+<%#
+  Bloco de erros de validação de um formulário — o [error-message] do §5.
+
+  Vive em shared/ porque serve qualquer recurso, não só o User do Devise. O
+  texto do título muda por contexto (o login fala em "envio", o cadastro de
+  categorias fala em "salvar"), então ele é parametrizável em vez de embutido.
+%>
+<% if resource.errors.any? %>
+  <div class="ds-alert ds-alert--error" role="alert" data-turbo-temporary>
+    <svg class="ds-alert__icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+      <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+    </svg>
+
+    <div class="ds-alert__content">
+      <p class="ds-alert__title">
+        <%= t(title_key, count: resource.errors.count) %>
+      </p>
+      <ul class="ds-alert__list">
+        <% resource.errors.full_messages.each do |message| %>
+          <li class="ds-alert__item"><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

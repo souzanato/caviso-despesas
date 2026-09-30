@@ -1,0 +1,33 @@
+<%#
+  Mensagens de flash — do Devise, do Omniauth e das telas do app.
+
+  Vive em shared/ porque os dois layouts renderizam: o de autenticação (onde o
+  aviso de "usuário ou senha inválidos" precisa aparecer) e o da aplicação
+  (onde os avisos de CRUD aparecem). Um parcial, dois contextos — o componente
+  [error-message] é o mesmo, o que muda é a superfície, e ela vem dos tokens.
+
+  O texto de cada mensagem vem do I18n do contexto que a emitiu.
+%>
+<% if flash.any? %>
+  <% flash.each do |type, message| %>
+    <% next if message.blank? %>
+    <% notice = type.to_s != "alert" %>
+    <div class="ds-alert <%= notice ? "ds-alert--notice" : "ds-alert--error" %>"
+         role="<%= notice ? "status" : "alert" %>">
+      <% if notice %>
+        <svg class="ds-alert__icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+      <% else %>
+        <svg class="ds-alert__icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+          <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+        </svg>
+      <% end %>
+
+      <div class="ds-alert__content">
+        <p class="ds-alert__item"><%= message %></p>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,43 @@
+<%#
+  Navegação auxiliar. Fica sempre ABAIXO do CTA principal e em tom secundário,
+  para não competir com ele. Todo o texto vem de I18n.
+%>
+<ul class="auth-links">
+  <%- if devise_mapping.omniauthable? %>
+    <%- resource_class.omniauth_providers.each do |provider| %>
+      <li class="auth-links__item auth-links__form">
+        <%= button_to t("auth.oauth.sign_in_with",
+                        provider: t("auth.oauth.providers.#{provider}", default: OmniAuth::Utils.camelize(provider))),
+                      omniauth_authorize_path(resource_name, provider),
+                      class: "ds-btn ds-btn--block ds-btn--oauth",
+                      data: { turbo: false },
+                      form: { class: "auth-links__form" } %>
+      </li>
+    <% end %>
+  <% end %>
+  <%- if controller_name != "sessions" %>
+    <li class="auth-links__item">
+      <%= link_to t("auth.links.sign_in"), new_session_path(resource_name), class: "auth-links__link" %>
+    </li>
+  <% end %>
+  <%- if devise_mapping.registerable? && controller_name != "registrations" %>
+    <li class="auth-links__item">
+      <%= link_to t("auth.links.sign_up"), new_registration_path(resource_name), class: "auth-links__link" %>
+    </li>
+  <% end %>
+  <%- if devise_mapping.recoverable? && controller_name != "passwords" && controller_name != "registrations" %>
+    <li class="auth-links__item">
+      <%= link_to t("auth.links.forgot_password"), new_password_path(resource_name), class: "auth-links__link" %>
+    </li>
+  <% end %>
+  <%- if devise_mapping.confirmable? && controller_name != "confirmations" %>
+    <li class="auth-links__item">
+      <%= link_to t("auth.links.resend_confirmation"), new_confirmation_path(resource_name), class: "auth-links__link" %>
+    </li>
+  <% end %>
+  <%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != "unlocks" %>
+    <li class="auth-links__item">
+      <%= link_to t("auth.links.resend_unlock"), new_unlock_path(resource_name), class: "auth-links__link" %>
+    </li>
+  <% end %>
+</ul>

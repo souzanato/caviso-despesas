@@ -1,0 +1,60 @@
+<%#
+  Layout base dos e-mails transacionais.
+
+  Restrições de e-mail HTML — de propósito, NÃO usa o CSS de devise_auth:
+  - nada de arquivo externo (clientes de e-mail bloqueiam <link> e <style>);
+  - nada de `backdrop-filter`, grid/flex ou custom properties (suporte irregular);
+  - layout em <table role="presentation"> (padrão mais compatível, inclusive Outlook);
+  - todo o estilo vai inline.
+
+  O DNA visual é o mesmo das telas de auth, na versão "chata" que os clientes
+  de e-mail entendem: fundo #0B0F14, card #12181F, CTA no verde da marca.
+%>
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <meta name="supported-color-schemes" content="dark light">
+    <title><%= t("app.name") %></title>
+  </head>
+
+  <body style="margin:0; padding:0; width:100%; background-color:#0B0F14; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0B0F14;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+
+          <table role="presentation" width="480" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:480px; background-color:#12181F; border:1px solid rgba(255,255,255,0.08); border-radius:16px;">
+
+            <%# Cabeçalho com a marca %>
+            <tr>
+              <td style="padding:28px 28px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                <span style="display:inline-block; font-size:15px; font-weight:700; letter-spacing:0.02em; color:#0FA968;">
+                  <%= t("app.name") %>
+                </span>
+              </td>
+            </tr>
+
+            <%# Corpo do e-mail %>
+            <tr>
+              <td style="padding:16px 28px 28px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.55; color:#E8EAED;">
+                <%= yield %>
+              </td>
+            </tr>
+
+            <%# Rodapé discreto %>
+            <tr>
+              <td style="padding:16px 28px 24px; border-top:1px solid rgba(255,255,255,0.08); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; line-height:1.5; color:#8A929E;">
+                <%= t("devise.mailer.footer.disclaimer", app: t("app.name")) %><br>
+                &copy; <%= Time.current.year %> <%= t("app.name") %>. <%= t("devise.mailer.footer.rights") %>
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

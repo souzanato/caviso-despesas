@@ -1,0 +1,89 @@
+<%# Título/card/flash vêm do layout dedicado. Aqui fica só o formulário. %>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name),
+             html: { method: :put, class: "ds-form" }) do |f| %>
+  <%= render "shared/error_messages", resource: resource, title_key: "auth.errors.title" %>
+
+  <div class="ds-field">
+    <%= f.label :full_name, class: "ds-field__label" %>
+    <%= f.text_field :full_name,
+                     autofocus: true,
+                     autocomplete: "name",
+                     placeholder: t("auth.placeholder.full_name"),
+                     class: "ds-field__input" %>
+  </div>
+
+  <div class="ds-field">
+    <%= f.label :username, class: "ds-field__label" %>
+    <%= f.text_field :username,
+                     autocomplete: "username",
+                     placeholder: t("auth.placeholder.username"),
+                     class: "ds-field__input" %>
+  </div>
+
+  <div class="ds-field">
+    <%= f.label :email, class: "ds-field__label" %>
+    <%= f.email_field :email,
+                      autocomplete: "email",
+                      placeholder: t("auth.placeholder.email"),
+                      class: "ds-field__input" %>
+    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+      <p class="ds-field__hint">
+        <%= t("auth.hint.pending_reconfirmation", email: resource.unconfirmed_email) %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="ds-field">
+    <%= f.label :password, class: "ds-field__label" %>
+    <%= f.password_field :password,
+                         autocomplete: "new-password",
+                         placeholder: t("auth.placeholder.password"),
+                         class: "ds-field__input" %>
+    <p class="ds-field__hint">
+      <% if @minimum_password_length %>
+        <%= t("auth.hint.password_min", count: @minimum_password_length) %> ·
+      <% end %>
+      <%= t("auth.hint.password_blank") %>
+    </p>
+  </div>
+
+  <div class="ds-field">
+    <%= f.label :password_confirmation, class: "ds-field__label" %>
+    <%= f.password_field :password_confirmation,
+                         autocomplete: "new-password",
+                         placeholder: t("auth.placeholder.password"),
+                         class: "ds-field__input" %>
+  </div>
+
+  <div class="ds-field">
+    <%= f.label :current_password, class: "ds-field__label" %>
+    <%= f.password_field :current_password,
+                         autocomplete: "current-password",
+                         placeholder: t("auth.placeholder.password"),
+                         class: "ds-field__input" %>
+    <p class="ds-field__hint"><%= t("auth.hint.current_password") %></p>
+  </div>
+
+  <div>
+    <%= f.submit t("auth.submit.update"), class: "ds-btn ds-btn--block ds-btn--primary" %>
+  </div>
+<% end %>
+
+<section class="auth-section">
+  <h3 class="auth-section__title"><%= t("auth.account.cancel_title") %></h3>
+  <p class="auth-section__hint"><%= t("auth.account.cancel_hint") %></p>
+
+  <%= button_to t("auth.account.cancel_action"),
+                registration_path(resource_name),
+                method: :delete,
+                class: "ds-btn ds-btn--block ds-btn--danger",
+                data: { turbo_confirm: t("auth.account.cancel_confirm") },
+                form: { class: "auth-links__form" } %>
+</section>
+
+<ul class="auth-links">
+  <li class="auth-links__item">
+    <%= link_to t("auth.links.back"), :back, class: "auth-links__link" %>
+  </li>
+</ul>

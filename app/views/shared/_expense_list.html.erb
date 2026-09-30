@@ -1,0 +1,45 @@
+<%# locals: (ledger_items:, ledger:, sort: "manual") %>
+<%#
+  `sort` chega aqui porque ele decide se a lista é ARRASTÁVEL.
+
+  Numa ordem calculada (por custo, por categoria) arrastar não faz sentido: a
+  posição que o usuário escolhesse seria imediatamente desfeita pelo critério.
+  Então a alça some nesses modos e reaparece em "minha ordem" — melhor não
+  oferecer o gesto do que oferecê-lo e ele não fazer nada.
+
+  Quando arrastável, o controller fica no WRAPPER e não na <ul>: a região viva
+  precisa ser irmã da lista (um <p> dentro de <ul> é HTML inválido), e alvos do
+  Stimulus têm de ser descendentes do elemento do controller.
+%>
+<% arrastavel = sort == "manual" %>
+
+<%#
+  `preserve-position` está sempre: marcar pago substitui a linha por Turbo
+  Stream, e isso sozinho já reposicionaria a rolagem. `drag` só existe no modo
+  manual (ver acima).
+%>
+<div id="expense-list"
+     data-controller="preserve-position<%= " drag" if arrastavel %>"
+     data-drag-url-value="<%= reorder_ledger_path(ledger) %>">
+  <% if ledger_items.any? %>
+    <%# `is-manual` diz ao CSS se a coluna da alça existe. Sem ela, a coluna
+        some e a linha encolhe — em vez de deixar um vão à esquerda do
+        checkbox quando a ordenação é por custo ou categoria. %>
+    <ul class="ds-expense-list <%= "is-manual" if arrastavel %>" data-drag-target="list">
+      <%= render partial: "shared/expense_row", collection: ledger_items, as: :item,
+                 locals: { sortable: arrastavel } %>
+    </ul>
+
+    <% if arrastavel %>
+      <%# Anuncia cada movimento feito pelo teclado: sem isso, quem reordena com
+          as setas não tem como saber em que posição a linha parou. %>
+      <p class="ds-visually-hidden" aria-live="polite" data-drag-target="status"></p>
+    <% end %>
+  <% else %>
+    <div class="ds-empty-state">
+      <i class="bi bi-receipt ds-empty-state__icon" aria-hidden="true"></i>
+      <p class="ds-empty-state__title"><%= t("home.empty_ledger.title") %></p>
+      <p class="ds-empty-state__text"><%= t("home.empty_ledger.text") %></p>
+    </div>
+  <% end %>
+</div>

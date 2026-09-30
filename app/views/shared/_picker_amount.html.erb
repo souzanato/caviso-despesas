@@ -1,0 +1,40 @@
+<%# locals: (ledger:) %>
+<%#
+  O valor de uma rubrica no [rubrica-picker].
+
+  O <span> com id faz parte DESTE parcial, e não do chamador. É o que torna a
+  substituição repetível: `turbo_stream.replace` troca o elemento inteiro pelo
+  HTML do parcial, então o parcial precisa devolver o próprio alvo — senão o
+  primeiro replace funciona e destrói o id, e o segundo não acha mais nada.
+
+  Duas leituras, uma por largura:
+  - CELULAR mostra só o que FALTA — é o número que se procura ao trocar de
+    rubrica. O total vinha junto e aparecia como DOIS valores idênticos lado a
+    lado, sem rótulo, porque nada o escondia fora do desktop;
+  - DESKTOP mostra o TOTAL, como no baseline, porque as rubricas ficam lado a
+    lado na coluna e o total é o que compara uma com a outra.
+
+  Nada a pagar tem duas causas — rubrica quitada e rubrica sem despesas. As duas
+  viram um check discreto no celular, mas continuam distintas para quem usa
+  leitor de tela, no `aria-label` do ícone.
+%>
+<% remaining = ledger.remaining_amount %>
+<% vazia = ledger.ledger_items.empty? %>
+<span class="ds-picker__amount" id="<%= dom_id(ledger, :picker_amount) %>">
+  <span class="ds-picker__total"><%= number_to_currency(ledger.total_amount) %></span>
+
+  <span class="ds-picker__remaining">
+    <% if remaining.zero? %>
+      <%# `role="img"` + `aria-label`: o texto abaixo some no celular, então o
+          ícone é quem carrega a informação para o leitor de tela. %>
+      <i class="bi bi-check-lg ds-picker__settled"
+         role="img"
+         aria-label="<%= t(vazia ? "home.picker.empty" : "home.picker.settled") %>"></i>
+      <span class="ds-picker__hint">
+        <%= t(vazia ? "home.picker.empty" : "home.picker.settled") %>
+      </span>
+    <% else %>
+      <%= t("home.picker.remaining", amount: number_to_currency(remaining)) %>
+    <% end %>
+  </span>
+</span>
