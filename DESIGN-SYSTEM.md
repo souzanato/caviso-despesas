@@ -459,6 +459,70 @@ A lista abre sobre o diálogo, ancorada ao campo.
 
 # 6. Navegação e estrutura
 
+## [brand-mark]
+
+### Uso
+Identidade visual do produto. É o único elemento autorizado a representar a
+marca, e existe em três materializações — o selo da `[top-navbar]`, o marco do
+`[auth-card]` e o ícone do produto (favicon / app icon). Todas são o **mesmo**
+componente; mudar o desenho da marca significa mudar as três.
+
+### Composição
+- container preenchido com o gradiente da marca;
+- a marca em si (`on-primary`), centrada;
+- nada mais. Sem texto, sem borda, sem ornamento.
+
+### Aparência
+- preenchimento `linear-gradient(135deg, primary, primary-hover)`;
+- marca sempre em `on-primary`, **nunca em branco**: branco sobre `primary` dá
+  3,05:1 e reprovaria em WCAG AA, enquanto `on-primary` dá 5,35:1;
+- sem `border`, sem contorno de separação.
+
+### Variantes
+
+#### `seal`
+Selo com glifo, ao lado do nome do produto na `[top-navbar]`.
+- container quadrado com `radius-md`;
+- glifo de linha, na cor da marca.
+
+#### `monogram`
+Marco com a inicial do nome do produto, no cabeçalho do `[auth-card]`.
+- container `radius-pill`;
+- inicial em peso alto e `letter-spacing` negativo;
+- admite `shadow-primary`, por estar sobre superfície escura.
+
+#### `icon`
+A marca sozinha, sem texto ao lado: aba do navegador, atalho, ícone instalado.
+- container sangrado (a marca ocupa todo o quadro), com raio proporcional
+  (~22%, o mesmo raio de squircle do iOS) — e **não** `radius-md`, que é um
+  token amarrado ao tamanho do selo de 34px e, escalado, transformaria o
+  quadrado num blob;
+- glifo maior que no `seal`, porque não há texto para carregar a leitura;
+- versões sangradas e **opacas** para quando o sistema aplica a própria máscara
+  (iOS). Transparência nas quinas ali vira preenchimento preto.
+
+### Tamanho mínimo
+O `icon` só é legível a partir de **32px**. Abaixo disso o glifo de linha perde
+o desenho interno e vira um borrão: a marca continua reconhecível pela cor e
+pela silhueta, mas deixa de comunicar "dinheiro". Não trocar o glifo do `icon`
+por um simplificado sem antes especificar essa variante aqui.
+
+### Mobile
+O `seal` pode ceder lugar ao nome do produto quando faltar largura, como
+descrito em `[top-navbar]`. O `monogram` não muda.
+
+### Desktop
+Tamanhos estáveis, sem variação por breakpoint.
+
+### Acessibilidade
+- a marca **nunca** carrega significado sozinha: quando há nome do produto em
+  texto ao lado, o container é decorativo (`aria-hidden`); quando não há, ela
+  precisa de nome acessível;
+- o selo da topbar é envolvido por link para a raiz, e herda o `:focus-visible`
+  compartilhado dos controles de navegação.
+
+---
+
 ## [app-shell]
 
 ### Uso

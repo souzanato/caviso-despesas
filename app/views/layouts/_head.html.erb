@@ -18,9 +18,13 @@
 <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
 <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
+<%# icon.png e icon.svg têm os cantos transparentes: servem à aba do navegador,
+    que desenha o arredondamento. O iOS, ao contrário, aplica a própria máscara e
+    pinta de preto onde houver transparência — daí o apple-touch-icon ser um
+    arquivo à parte, sangrado e opaco. %>
 <link rel="icon" href="/icon.png" type="image/png">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <%# "application" explícito, e não `:app`: no Propshaft o `:app` expande para
     TODOS os CSS do app, o que faria o devise_auth.css ser baixado em todas as

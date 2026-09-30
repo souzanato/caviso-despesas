@@ -163,6 +163,21 @@ Para telas:
 
 # 5. Navegação e estrutura
 
+### [brand-mark]
+- status: implemented
+- files:
+  - view: `app/views/layouts/_topbar.html.erb`
+  - view: `app/views/layouts/devise.html.erb`
+  - view: `app/views/layouts/_head.html.erb`
+  - style: `app/assets/stylesheets/app_shell.scss`
+  - style: `app/assets/stylesheets/devise_auth.scss`
+  - asset: `public/icon.svg`
+  - asset: `public/icon.png`
+  - asset: `public/apple-touch-icon.png`
+  - script: `script/build_brand_icon.mjs`
+- implementation_notes: Três variantes do MESMO componente, em três arquivos de estilo distintos — mudar a marca exige mexer nas três. `seal` é `.app-brand__icon` (34×34, `radius-md`, glifo `bi-cash-coin`); `monogram` é `.auth-card__mark` (`radius-pill`, inicial de `app.name` via `.first`, `shadow-primary`). DIVERGÊNCIA CONHECIDA: o `seal` usa `radius-md` e o `monogram` usa `radius-pill`; ambos convivem porque estão em contextos que nunca aparecem juntos, mas o Design System não fixa um raio único para a família — decidir isso é trabalho de design, não de implementação. O `icon` é gerado por `script/build_brand_icon.mjs`, que lê o glifo de `node_modules/bootstrap-icons/icons/cash-coin.svg` (mesmo glifo da topbar, nunca divergem) e rasteriza via Playwright. `icon.svg` e `icon.png` têm quinas transparentes (o navegador desenha o arredondamento); `apple-touch-icon.png` é sangrado e OPACO porque o iOS pinta de preto onde houver transparência — antes disso o `apple-touch-icon` apontava para `icon.png` e renderizava com quinas pretas. O PWA manifest (`app/views/pwa/manifest.json.erb`) ainda aponta para `/icon.png` e mantém `theme_color: "red"`; está inerte porque a rota está comentada em `config/routes.rb`.
+- last_verified: 2026-09-30
+
 ### [app-shell]
 - status: implemented
 - files:
