@@ -1,0 +1,47 @@
+# caviso-despesas — produção (https://despesas.caviso.com.br)
+#
+# Sobe a imagem de produção do Dockerfile (Rails 8 + Thruster + Puma) atrás do
+# nginx do host, que termina o SSL.
+#
+# Por que network_mode: host e não uma rede bridge com porta publicada:
+# o banco é o Postgres 16 compartilhado deste servidor, cujo
+# listen_addresses=localhost só aceita conexão vinda de 127.0.0.1. Uma rede
+# bridge não alcança o loopback do host. É o mesmo arranjo dos outros apps
+# Rails da máquina (/opt/arteduca-api, /opt/postalcard, /opt/mediator).
+#
+# Consequência: as portas abaixo escutam em 0.0.0.0. A proteção é feita no
+# firewall do host (/etc/iptables/rules.v4), que aceita 127.0.0.1 e descarta o
+# resto — o mesmo padrão já aplicado às portas 5432 e 3306.
+services:
+  despesas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: despesas:latest
+    container_name: despesas
+    env_file:
+      - .env
+    environment:
+      RAILS_ENV: production
+
+      # Thruster: porta que o nginx acessa (ver o vhost do despesas.caviso.com.br).
+      HTTP_PORT: "3006"
+      # Thruster repassa as requisições para o Puma nesta porta.
+      TARGET_PORT: "3016"
+      # Lido por config/puma.rb:32. Fixado aqui para o Puma nunca cair no
+      # default 3000, que já está ocupado nesta máquina por outro app.
+      PORT: "3016"
+
+      # config/puma.rb:38 — roda o supervisor do Solid Queue dentro do Puma,
+      # que é o recomendado para servidor único. Sem isto, os jobs agendados de
+      # config/recurring.yml não executam.
+      SOLID_QUEUE_IN_PUMA: "true"
+    volumes:
+      # config/environments/production.rb:25 usa Active Storage em disco local.
+      # Sem este volume os anexos se perdem a cada recriação do container.
+      - despesas_storage:/rails/storage
+    network_mode: host
+    restart: always
+
+volumes:
+  despesas_storage:

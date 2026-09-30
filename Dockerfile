@@ -45,7 +45,7 @@ RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz
     rm -rf /tmp/node-build-master
 
 # Install application gems
-COPY vendor/* ./vendor/
+COPY vendor/ ./vendor/
 COPY Gemfile Gemfile.lock ./
 
 RUN bundle install && \
@@ -65,7 +65,21 @@ COPY . .
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+#
+# `assets:precompile` boota o ambiente de produção inteiro. Nesse boot o
+# config/environments/production.rb exige APP_HOST e SMTP_DOMAIN (ENV.fetch sem
+# default) e o config/database.yml exige PRODUCTION_ADAPTER — sem adapter o
+# Rails aborta com AdapterNotSpecified antes de qualquer query.
+#
+# O .env não existe no build: é dockerignored, e o env_file do compose só vale
+# em runtime. Daí os valores de fachada abaixo. Nenhum deles influencia os
+# assets (config.asset_host está comentado) e nada é persistido — variável
+# inline vale só para este RUN; em runtime valem os valores reais do .env.
+RUN SECRET_KEY_BASE_DUMMY=1 \
+    APP_HOST=example.com \
+    SMTP_DOMAIN=example.com \
+    PRODUCTION_ADAPTER=postgresql \
+    ./bin/rails assets:precompile
 
 
 RUN rm -rf node_modules

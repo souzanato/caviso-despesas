@@ -24,14 +24,21 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
-
-  # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  # O SSL é terminado pelo nginx do host, que repassa HTTP para o Thruster em
+  # 127.0.0.1. Sem `assume_ssl` o Rails não tem como saber que a requisição
+  # original chegou por HTTPS, e sem `force_ssl` os cookies de sessão do Devise
+  # não saem com a flag Secure nem há HSTS.
+  #
+  # O caso concreto é o login com Google: o OmniAuth monta a redirect_uri a
+  # partir de `request.base_url`. Com assume_ssl ela sai https de forma
+  # determinística, sem depender de como o Rack interpreta o X-Forwarded-Proto
+  # que o nginx envia.
+  #
+  # O /up fica fora do redirect para o health check continuar respondendo sem
+  # que o monitor precise seguir redirect.
+  config.assume_ssl = true
+  config.force_ssl = true
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -99,11 +106,12 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
   #
+  # A lista sai do APP_HOST para não existir um segundo lugar onde o domínio
+  # precisa ser lembrado. Requisição com outro Host é rejeitada — defesa extra
+  # caso alguma porta do app deixe de estar protegida pelo firewall.
+  config.hosts = [ ENV.fetch("APP_HOST") ]
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
