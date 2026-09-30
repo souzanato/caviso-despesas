@@ -58,7 +58,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # config.action_mailer.default_url_options = { host: "example.com" }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
   # config.action_mailer.smtp_settings = {
@@ -68,6 +68,28 @@ Rails.application.configure do
   #   port: 587,
   #   authentication: :plain
   # }
+
+  config.action_mailer.delivery_method = :smtp
+
+  config.action_mailer.smtp_settings = {
+    address: ENV.fetch("SMTP_ADDRESS", "smtp.gmail.com"),
+    port: ENV.fetch("SMTP_PORT", 587).to_i,
+    domain: ENV.fetch("SMTP_DOMAIN"),
+    user_name: ENV.fetch("SMTP_USERNAME"),
+    password: ENV.fetch("SMTP_PASSWORD"),
+    authentication: :plain,
+    enable_starttls: true,
+    open_timeout: 5,
+    read_timeout: 5
+  }
+
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("APP_HOST"),
+    protocol: "https"
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

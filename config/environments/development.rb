@@ -38,7 +38,7 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: ENV["MAILER_HOST"], port: ENV["MAILER_PORT"] }
+  config.action_mailer.default_url_options = { host: ENV["SMTP_ADDRESS"], port: ENV["SMTP_PORT"] }
   config.action_mailer.delivery_method = :letter_opener
   config.action_mailer.perform_deliveries = true
 
