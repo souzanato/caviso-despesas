@@ -71,7 +71,7 @@ gem "omniauth-rails_csrf_protection", "~> 2.0"
 
 gem "rolify", path: "vendor/gems/rolify"
 
-gem "cancancan", "~> 3.6"
+gem "cancancan", "~> 3.7"
 
 gem "letter_opener", "~> 1.10", group: :development
 
